@@ -1,0 +1,5 @@
+node_modules/
+dist/
+*.log
+data/draft.db
+.claude/
