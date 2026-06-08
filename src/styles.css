@@ -397,10 +397,12 @@ button:focus-visible {
 
 .formation-bar select {
   padding: 6px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 800;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--panel);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
 .formation-slots {
@@ -410,24 +412,25 @@ button:focus-visible {
 }
 
 .formation-badge {
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #f3f4f6;
-  color: #667085;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 3px 7px;
+  border: 1px solid var(--soft-line);
+  background: var(--field);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
 .formation-badge.complete {
-  background: #ecfdf5;
-  color: #059669;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .empty-message {
-  color: #98a2b3;
+  color: var(--muted);
   font-size: 14px;
-  padding: 18px;
-  text-align: center;
+  padding: 18px 14px;
 }
 
 .roster-list {
@@ -437,7 +440,7 @@ button:focus-visible {
 
 .roster-section-label {
   padding: 8px 14px;
-  background: var(--bg);
+  background: var(--field);
   color: var(--muted);
   font-size: 11px;
   font-weight: 950;
@@ -461,11 +464,12 @@ button:focus-visible {
 }
 
 .player-card.in-xi {
-  background: #f0f5ff;
+  background: var(--field);
 }
 
 .player-card.is-captain {
-  background: #fffbeb;
+  background: var(--field);
+  border-left: 3px solid var(--ink);
 }
 
 .player-card-info {
@@ -513,43 +517,44 @@ button:focus-visible {
 }
 
 .btn-captain {
-  width: 28px;
-  height: 28px;
-  border: 2px solid #d1d5db;
-  border-radius: 50%;
-  background: #fff;
-  color: #9ca3af;
-  font-size: 13px;
-  font-weight: 900;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid var(--soft-line);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 950;
   cursor: pointer;
   line-height: 1;
 }
 
 .btn-captain.active {
-  border-color: #f59e0b;
-  background: #f59e0b;
-  color: #fff;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .btn-start,
 .btn-bench {
-  border: 0;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 800;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 900;
   cursor: pointer;
   white-space: nowrap;
+  letter-spacing: 0.04em;
 }
 
 .btn-start {
-  background: #3a6ff8;
-  color: #fff;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .btn-bench {
-  background: #f3f4f6;
-  color: #667085;
+  background: var(--panel);
+  color: var(--ink);
 }
 
 .slot-actions {
