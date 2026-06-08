@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { formationSlots, playerName } from "../lib/fantasy";
 
-function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI, onSetCaptain }) {
+function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lockTimeLeft: initialLockTimeLeft, onFormationChange, onToggleXI, onSetCaptain }) {
+  const [lockTimeLeft, setLockTimeLeft] = useState(initialLockTimeLeft);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    setLockTimeLeft(initialLockTimeLeft);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    if (initialLockTimeLeft == null || initialLockTimeLeft <= 0 || isLocked) return;
+
+    const start = Date.now();
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const remaining = initialLockTimeLeft - elapsed;
+      setLockTimeLeft(remaining > 0 ? remaining : 0);
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [initialLockTimeLeft, isLocked]);
   const players = team?.players || [];
   const startingSet = new Set(lineup?.startingXI || []);
   const captainId = lineup?.captainId;
@@ -39,6 +57,22 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
           <p>{starters.length}/11 starting &middot; {players.length} players</p>
         </div>
       </div>
+
+      {currentMatchday && (
+        <div className={`lock-banner${isLocked ? " lock-banner-locked" : ""}`}>
+          {isLocked ? (
+            <>
+              <strong>XI Locked</strong>
+              <span>Matchday {currentMatchday.id} lineups are locked</span>
+            </>
+          ) : lockTimeLeft != null && lockTimeLeft > 0 ? (
+            <>
+              <strong>XI Lock In</strong>
+              <span className="lock-countdown">{formatCountdown(lockTimeLeft)}</span>
+            </>
+          ) : null}
+        </div>
+      )}
 
       <div className="formation-bar">
         <select value={formation} onChange={(event) => onFormationChange(event.target.value)}>

@@ -20,6 +20,7 @@ function Draft({
   draftError,
   pickState,
   timeLeft,
+  draftedSquads,
   onSearchChange,
   onPositionChange,
   onSortChange,
@@ -27,6 +28,8 @@ function Draft({
   onResetDraft,
   onAutoDraft,
 }) {
+  const blockedSquads = new Set(draftedSquads || []);
+
   return (
     <section className="draft-grid">
       <div className="panel draft-panel">
@@ -70,16 +73,24 @@ function Draft({
         </div>
 
         <div className="standings-list">
-          {(draft?.managers || []).map((manager) => (
-            <div
-              className={draft?.currentPick?.manager?.id === manager.id ? "standing-row active-turn" : "standing-row"}
-              key={manager.id}
-            >
-              <span>{manager.draftPosition}</span>
-              <strong>{manager.displayName}</strong>
-              <span></span>
-            </div>
-          ))}
+          {(draft?.managers || []).map((manager) => {
+            const squads = draft?.managerSquads?.[manager.id] || [];
+            return (
+              <div
+                className={draft?.currentPick?.manager?.id === manager.id ? "standing-row active-turn" : "standing-row"}
+                key={manager.id}
+              >
+                <span>{manager.draftPosition}</span>
+                <strong>{manager.displayName}</strong>
+                <span className="manager-flags">
+                  {squads.map((squadId) => {
+                    const flag = assets.flags?.[squadId]?.path;
+                    return flag ? <img key={squadId} className="flag-icon-sm" src={flag} alt="" /> : null;
+                  })}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         {(draft?.picks || []).length > 0 && (
@@ -129,8 +140,9 @@ function Draft({
         <div className="player-list">
           {players.slice(0, 120).map((player) => {
             const isMyTurn = draft?.currentPick?.manager?.id === session?.manager?.id;
+            const countryBlocked = blockedSquads.has(player.squadId);
             return (
-              <article className="player-row draft-player-row" key={player.id}>
+              <article className={`player-row draft-player-row${countryBlocked ? " country-blocked" : ""}`} key={player.id}>
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
@@ -138,10 +150,8 @@ function Draft({
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">
-                  <span>${player.price}m</span>
-                  <span>{player.percentSelected}%</span>
-                  <button disabled={!isMyTurn || pickState === "picking"} onClick={() => onPick(player.id)} type="button">
-                    Pick
+                  <button disabled={!isMyTurn || pickState === "picking" || countryBlocked} onClick={() => onPick(player.id)} type="button">
+                    {countryBlocked ? "Taken" : "Pick"}
                   </button>
                 </div>
               </article>

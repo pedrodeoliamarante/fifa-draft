@@ -1091,6 +1091,24 @@ button:focus-visible {
   color: #3a6ff8;
 }
 
+.manager-flags {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.flag-icon-sm {
+  width: 14px;
+  height: 10px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08);
+}
+
+.country-blocked {
+  opacity: 0.35;
+}
+
 .btn-small {
   padding: 6px 14px;
   border: 0;

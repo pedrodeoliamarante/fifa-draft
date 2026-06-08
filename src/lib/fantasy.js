@@ -1,9 +1,9 @@
 export const positions = ["ALL", "GK", "DEF", "MID", "FWD"];
 
 export const sortOptions = [
+  { value: "price", label: "Ability" },
   { value: "points", label: "Points" },
   { value: "name", label: "Name" },
-  { value: "price", label: "Price" },
 ];
 
 export const rosterSlots = [

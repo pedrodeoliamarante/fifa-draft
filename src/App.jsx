@@ -315,6 +315,9 @@ function App() {
             formation={formation}
             assets={assets}
             lineup={lineup}
+            currentMatchday={engine.getCurrentMatchday()}
+            isLocked={(() => { const md = engine.getCurrentMatchday(); return md ? engine.isRoundLocked(md.id) : false; })()}
+            lockTimeLeft={(() => { const md = engine.getCurrentMatchday(); return md ? engine.getLockTimeLeft(md.id) : null; })()}
             onFormationChange={setFormation}
             onToggleXI={handleToggleXI}
             onSetCaptain={handleSetCaptain}
@@ -362,6 +365,7 @@ function App() {
           draftError={draftError}
           pickState={pickState}
           timeLeft={timeLeft}
+          draftedSquads={session?.manager?.id ? engine.getMyDraftedSquads(session.manager.id) : []}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
           onSortChange={setSortBy}
