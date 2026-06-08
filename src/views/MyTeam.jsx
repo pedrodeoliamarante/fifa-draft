@@ -103,6 +103,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
                 assets={assets}
                 inXI={true}
                 isCaptain={captainId === player.id}
+                disabled={isLocked}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
               />
@@ -120,6 +121,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
                 assets={assets}
                 inXI={false}
                 isCaptain={captainId === player.id}
+                disabled={isLocked}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
               />
@@ -131,7 +133,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
   );
 }
 
-function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
+function PlayerRow({ player, assets, inXI, isCaptain, disabled, onToggle, onCaptain }) {
   return (
     <div className={`player-card ${inXI ? "in-xi" : ""} ${isCaptain ? "is-captain" : ""}`}>
       <div className="player-card-info">
@@ -141,7 +143,7 @@ function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
             <Flag player={player} assets={assets} /> {playerName(player)}
           </strong>
           <span className="player-card-meta">
-            {player.teamAbbr || "TBD"} &middot; ${player.price}m
+            {player.teamAbbr || "TBD"} &middot; {player.stats?.totalPoints || 0} pts
           </span>
         </div>
       </div>
@@ -150,6 +152,7 @@ function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
           <button
             className={`btn-captain ${isCaptain ? "active" : ""}`}
             onClick={onCaptain}
+            disabled={disabled}
             title="Set as captain"
             type="button"
           >
@@ -159,6 +162,7 @@ function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
         <button
           className={inXI ? "btn-bench" : "btn-start"}
           onClick={onToggle}
+          disabled={disabled}
           type="button"
         >
           {inXI ? "Bench" : "Start"}
@@ -166,6 +170,18 @@ function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
       </div>
     </div>
   );
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return "00:00:00";
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  if (days > 0) return `${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
 function Flag({ player, assets }) {
