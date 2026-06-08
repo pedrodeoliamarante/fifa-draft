@@ -356,7 +356,7 @@ button:focus-visible {
   object-fit: cover;
   vertical-align: -2px;
   margin-right: 4px;
-  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08);
+  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .team-grid,

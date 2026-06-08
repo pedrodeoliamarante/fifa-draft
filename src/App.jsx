@@ -424,6 +424,7 @@ function App() {
           session={session}
           pool={engine.isFreeAgencyOpen() ? engine.getFreeAgentPool() : []}
           myRoster={engine.getMe(session.manager.id).team.players}
+          assets={assets}
           isOpen={engine.isFreeAgencyOpen()}
           matchday={engine.getFreeAgencyMatchday()}
           onClaim={(playerId) => {

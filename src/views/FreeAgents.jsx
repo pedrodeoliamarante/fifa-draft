@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { playerName } from "../lib/fantasy";
 
-function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRelease, onRefresh, onCompleteMatchday }) {
+function FreeAgents({ session, pool, myRoster, assets, isOpen, matchday, onClaim, onRelease, onRefresh, onCompleteMatchday }) {
   const [error, setError] = useState("");
   const [releaseMode, setReleaseMode] = useState(false);
   const rosterFull = myRoster.length >= 15;
@@ -76,7 +76,7 @@ function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRele
             <article className="player-row" key={player.id}>
               <div className="player-main">
                 <strong>{playerName(player)}</strong>
-                <span>{player.position} / {player.teamAbbr || "TBD"}</span>
+                <span>{player.position} / <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}</span>
               </div>
               <div className="player-meta fa-meta">
                 <span>${player.price}m</span>
@@ -117,7 +117,7 @@ function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRele
             <article className="player-row" key={player.id}>
               <div className="player-main">
                 <strong>{playerName(player)}</strong>
-                <span>{player.position} / {player.teamAbbr || "TBD"}</span>
+                <span>{player.position} / <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}</span>
               </div>
               <div className="player-meta fa-meta">
                 <span>${player.price}m</span>
@@ -134,6 +134,12 @@ function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRele
       </div>
     </section>
   );
+}
+
+function Flag({ player, assets }) {
+  const flag = assets?.flags?.[player.squadId]?.path;
+  if (!flag) return null;
+  return <img className="flag-icon" src={flag} alt="" />;
 }
 
 export default FreeAgents;

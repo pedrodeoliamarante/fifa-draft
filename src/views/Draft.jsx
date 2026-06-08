@@ -101,7 +101,7 @@ function Draft({
                 <div className="draft-pick-entry" key={pick.pickNumber}>
                   <span className="pick-number">#{pick.pickNumber}</span>
                   <strong>{pick.playerName}</strong>
-                  <span>{pick.position} &middot; {pick.teamAbbr}</span>
+                  <span>{pick.position} &middot; <SquadFlag squadId={pick.squadId} assets={assets} /> {pick.teamAbbr}</span>
                 </div>
               ))}
             </div>
@@ -165,6 +165,12 @@ function Draft({
 
 function Flag({ player, assets }) {
   const flag = assets.flags?.[player.squadId]?.path;
+  if (!flag) return null;
+  return <img className="flag-icon" src={flag} alt="" />;
+}
+
+function SquadFlag({ squadId, assets }) {
+  const flag = assets?.flags?.[squadId]?.path;
   if (!flag) return null;
   return <img className="flag-icon" src={flag} alt="" />;
 }
