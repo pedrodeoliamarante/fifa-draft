@@ -1177,6 +1177,21 @@ app.get("/api/health", (_req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Serve frontend static files (so everything runs on one origin)
+// ---------------------------------------------------------------------------
+
+const distDir = path.join(rootDir, "dist");
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  // SPA fallback — serve index.html for non-API routes
+  app.get("*", (req, res) => {
+    if (!req.path.startsWith("/api/")) {
+      res.sendFile(path.join(distDir, "index.html"));
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 
