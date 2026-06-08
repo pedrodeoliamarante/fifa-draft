@@ -664,7 +664,14 @@ app.use(express.json());
 // Serve frontend static files (so everything runs on one origin — no CORS popups)
 const distDir = path.join(rootDir, "dist");
 console.log("Static dir:", distDir, "exists:", fs.existsSync(distDir));
-app.use(express.static(distDir, { index: "index.html" }));
+if (fs.existsSync(distDir)) {
+  console.log("Registering express.static for", distDir);
+  const staticMiddleware = express.static(distDir, { index: "index.html" });
+  app.use((req, res, next) => {
+    console.log("Static middleware hit:", req.method, req.path);
+    staticMiddleware(req, res, next);
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Auth endpoints
