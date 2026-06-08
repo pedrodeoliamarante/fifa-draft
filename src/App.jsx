@@ -277,7 +277,7 @@ function App() {
         </>
       )}
 
-      {activeView === "league-standings" && <LeagueStandings standings={data.standings} />}
+      {activeView === "league-standings" && <LeagueStandings standings={data.standings} assets={assets} />}
 
       {activeView === "draft" && (
         <Draft

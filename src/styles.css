@@ -64,13 +64,20 @@ h2 {
 .shell {
   width: min(100%, 1440px);
   margin: 0 auto;
-  padding: 12px;
+  padding: 12px 20px 12px 12px;
+  overflow-x: hidden;
 }
 
 .topbar {
   display: grid;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
   padding: 12px 0 18px;
+}
+
+.topbar h1 {
+  font-size: clamp(16px, 4vw, 28px);
 }
 
 .eyebrow {
@@ -98,6 +105,8 @@ h2 {
   border-radius: 0;
   background: var(--panel);
   box-shadow: 7px 7px 0 var(--ink);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .main-menu {
@@ -295,8 +304,10 @@ button:focus-visible {
 
 .player-row {
   display: grid;
-  gap: 12px;
-  padding: 13px 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--soft-line);
 }
 
@@ -306,28 +317,33 @@ button:focus-visible {
 
 .player-main {
   display: grid;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .player-main strong {
-  font-size: 17px;
-  line-height: 1.05;
+  font-size: 14px;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-main span,
 .player-meta {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .player-meta {
-  display: grid;
-  grid-template-columns: 72px 74px minmax(0, 1fr);
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .flag-icon {
@@ -592,6 +608,108 @@ button:focus-visible {
   text-align: right;
 }
 
+.standing-row-clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.standing-row-clickable:hover {
+  background: var(--field);
+}
+
+.standing-row-expanded {
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom-color: var(--ink);
+}
+
+.standing-row-expanded span,
+.standing-row-expanded strong {
+  color: var(--paper);
+}
+
+.standing-row-expanded:hover {
+  background: var(--ink);
+}
+
+.standing-roster {
+  border-bottom: 1px solid var(--soft-line);
+  padding: 0 14px 14px;
+  background: var(--field);
+}
+
+.standing-roster-section {
+  margin-top: 12px;
+}
+
+.standing-roster-section h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.standing-roster-section h3 span {
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.standing-roster-list {
+  display: grid;
+  gap: 0;
+}
+
+.standing-player {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 10px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--soft-line);
+}
+
+.standing-player:last-child {
+  border-bottom: 0;
+}
+
+.standing-player-pos {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.standing-player strong {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.standing-player-pts {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.standing-player-bench {
+  opacity: 0.65;
+}
+
+.standing-roster-empty {
+  padding: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .draft-turn {
   display: grid;
   gap: 7px;
@@ -608,11 +726,14 @@ button:focus-visible {
 }
 
 .draft-turn strong {
-  font-size: 34px;
+  font-size: clamp(20px, 6vw, 34px);
   font-weight: 950;
   letter-spacing: 0;
   line-height: 0.95;
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .draft-turn em {
@@ -636,7 +757,6 @@ button:focus-visible {
 }
 
 .draft-player-meta {
-  grid-template-columns: 72px 74px minmax(84px, 1fr);
   align-items: center;
 }
 
@@ -646,9 +766,10 @@ button:focus-visible {
   background: var(--ink);
   color: var(--paper);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 950;
-  height: 34px;
+  height: 28px;
+  padding: 0 10px;
   letter-spacing: 0.04em;
 }
 
@@ -658,7 +779,7 @@ button:focus-visible {
 }
 
 .draft-timer {
-  font-size: 28px;
+  font-size: clamp(20px, 5vw, 28px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   color: #3a6ff8;

@@ -230,7 +230,7 @@ export function createDraftEngine(allPlayers, squads) {
       standings: managers.map((m) => {
         const roster = getManagerRoster(state, m.id);
         const totalPoints = roster.reduce((sum, p) => sum + (p.stats?.totalPoints || 0), 0);
-        return { managerId: m.id, displayName: m.displayName, totalPoints };
+        return { managerId: m.id, displayName: m.displayName, totalPoints, roster };
       }).sort((a, b) => b.totalPoints - a.totalPoints),
     };
   }
