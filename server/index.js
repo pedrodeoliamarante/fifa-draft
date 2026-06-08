@@ -659,7 +659,11 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.status(204).end();
   next();
 });
-app.use(express.json());
+app.use((req, res, next) => {
+  // Only parse JSON for API routes
+  if (req.path.startsWith("/api/")) return express.json()(req, res, next);
+  next();
+});
 
 // Serve frontend static files (so everything runs on one origin — no CORS popups)
 const distDir = path.join(rootDir, "dist");
