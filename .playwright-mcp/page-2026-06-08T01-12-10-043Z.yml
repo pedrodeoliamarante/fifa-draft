@@ -1,0 +1,19 @@
+- main [ref=e1049]:
+  - generic [ref=e1050]:
+    - paragraph [ref=e1051]: World Cup Fantasy Draft
+    - heading "Manager Login" [level=1] [ref=e1052]
+    - generic [ref=e1053]:
+      - generic [ref=e1054]:
+        - text: Login name
+        - textbox "Login name" [ref=e1055]: pedro
+      - generic [ref=e1056]:
+        - text: Password
+        - textbox "Password" [ref=e1057]: demo
+      - button "Log In" [ref=e1058] [cursor=pointer]
+    - generic [ref=e1059]:
+      - button "Pedro" [ref=e1060] [cursor=pointer]
+      - button "Tesla Team" [ref=e1061] [cursor=pointer]
+      - button "Monarcas" [ref=e1062] [cursor=pointer]
+      - button "Aidan" [ref=e1063] [cursor=pointer]
+      - button "Sam" [ref=e1064] [cursor=pointer]
+      - button "Hang He Chan Love" [ref=e1065] [cursor=pointer]

@@ -1,0 +1,40 @@
+- main [ref=e20]:
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - paragraph [ref=e23]: World Cup Fantasy Draft
+      - heading "My Team" [level=1] [ref=e1034]
+    - generic [ref=e25]:
+      - generic [ref=e26]: Pedro
+      - button "Log Out" [ref=e27] [cursor=pointer]
+  - navigation "Main menu" [ref=e28]:
+    - button "My Team" [active] [ref=e29] [cursor=pointer]
+    - button "League Standings" [ref=e30] [cursor=pointer]
+    - button "Draft" [ref=e31] [cursor=pointer]
+    - button "Player DB" [ref=e32] [cursor=pointer]
+    - button "Rules" [ref=e33] [cursor=pointer]
+  - generic [ref=e1035]:
+    - generic [ref=e1036]:
+      - generic [ref=e1038]:
+        - heading "Starting XI" [level=2] [ref=e1039]
+        - paragraph [ref=e1040]: 0 / 11 selected
+      - generic [ref=e1041]:
+        - generic [ref=e1042]: Formation
+        - combobox [ref=e1043]:
+          - option "3-4-3"
+          - option "3-5-2"
+          - option "4-4-2"
+          - option "4-3-3" [selected]
+          - option "4-5-1"
+          - option "5-3-2"
+          - option "5-4-1"
+        - generic [ref=e1044]:
+          - generic [ref=e1045]: GK 0/1
+          - generic [ref=e1046]: DEF 0/4
+          - generic [ref=e1047]: MID 0/3
+          - generic [ref=e1048]: FWD 0/3
+      - paragraph [ref=e1049]: Select players from your roster below to build your Starting XI.
+    - generic [ref=e1050]:
+      - generic [ref=e1052]:
+        - heading "Full Roster" [level=2] [ref=e1053]
+        - paragraph [ref=e1054]: 0 / 15 players
+      - paragraph [ref=e1056]: Draft players first to build your roster.

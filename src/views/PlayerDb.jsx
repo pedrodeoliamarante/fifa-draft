@@ -33,15 +33,10 @@ function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, o
         {players.slice(0, 120).map((player) => (
           <article className="player-row" key={player.id}>
             <div className="player-main">
-              <div className="player-identity">
-                <PlayerPhoto player={player} assets={assets} />
-                <div>
-                  <strong>{playerName(player)}</strong>
-                  <span>
-                    {player.position} · <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
-                  </span>
-                </div>
-              </div>
+              <strong>{playerName(player)}</strong>
+              <span>
+                {player.position} / <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
+              </span>
             </div>
             <div className="player-meta">
               <span>${player.price}m</span>

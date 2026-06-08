@@ -1,0 +1,145 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: World Cup Fantasy Draft
+      - heading "My Team" [level=1] [ref=e1378]
+    - generic [ref=e8]:
+      - generic [ref=e9]: Pedro
+      - button "Log Out" [ref=e10] [cursor=pointer]
+  - navigation "Main menu" [ref=e11]:
+    - button "My Team" [active] [ref=e12] [cursor=pointer]
+    - button "League Standings" [ref=e13] [cursor=pointer]
+    - button "Draft" [ref=e14] [cursor=pointer]
+    - button "Player DB" [ref=e15] [cursor=pointer]
+    - button "Rules" [ref=e16] [cursor=pointer]
+  - generic [ref=e1379]:
+    - generic [ref=e1380]:
+      - generic [ref=e1382]:
+        - heading "Starting XI" [level=2] [ref=e1383]
+        - paragraph [ref=e1384]: 0 / 11 selected
+      - generic [ref=e1385]:
+        - generic [ref=e1386]: Formation
+        - combobox [ref=e1387]:
+          - option "3-4-3"
+          - option "3-5-2"
+          - option "4-4-2"
+          - option "4-3-3" [selected]
+          - option "4-5-1"
+          - option "5-3-2"
+          - option "5-4-1"
+        - generic [ref=e1388]:
+          - generic [ref=e1389]: GK 0/1
+          - generic [ref=e1390]: DEF 0/4
+          - generic [ref=e1391]: MID 0/3
+          - generic [ref=e1392]: FWD 0/3
+      - paragraph [ref=e1393]: Select players from your roster below to build your Starting XI.
+    - generic [ref=e1394]:
+      - generic [ref=e1396]:
+        - heading "Full Roster" [level=2] [ref=e1397]
+        - paragraph [ref=e1398]: 15 / 15 players
+      - generic [ref=e1399]:
+        - generic [ref=e1400]:
+          - generic [ref=e1401]:
+            - generic [ref=e1402]: GK
+            - strong [ref=e1403]: Emiliano Martínez
+          - generic [ref=e1404]:
+            - generic [ref=e1405]: $5m
+            - button "Start" [ref=e1406] [cursor=pointer]
+        - generic [ref=e1407]:
+          - generic [ref=e1408]:
+            - generic [ref=e1409]: GK
+            - strong [ref=e1410]: Bart Verbruggen
+          - generic [ref=e1411]:
+            - generic [ref=e1412]: $4.7m
+            - button "Start" [ref=e1413] [cursor=pointer]
+        - generic [ref=e1414]:
+          - generic [ref=e1415]:
+            - generic [ref=e1416]: DEF
+            - strong [ref=e1417]: Joshua Kimmich
+          - generic [ref=e1418]:
+            - generic [ref=e1419]: $5.5m
+            - button "Start" [ref=e1420] [cursor=pointer]
+        - generic [ref=e1421]:
+          - generic [ref=e1422]:
+            - generic [ref=e1423]: DEF
+            - strong [ref=e1424]: Virgil van Dijk
+          - generic [ref=e1425]:
+            - generic [ref=e1426]: $5.5m
+            - button "Start" [ref=e1427] [cursor=pointer]
+        - generic [ref=e1428]:
+          - generic [ref=e1429]:
+            - generic [ref=e1430]: DEF
+            - strong [ref=e1431]: Lucas Hernández
+          - generic [ref=e1432]:
+            - generic [ref=e1433]: $5.2m
+            - button "Start" [ref=e1434] [cursor=pointer]
+        - generic [ref=e1435]:
+          - generic [ref=e1436]:
+            - generic [ref=e1437]: MID
+            - strong [ref=e1438]: Bruno Fernandes
+          - generic [ref=e1439]:
+            - generic [ref=e1440]: $8.5m
+            - button "Start" [ref=e1441] [cursor=pointer]
+        - generic [ref=e1442]:
+          - generic [ref=e1443]:
+            - generic [ref=e1444]: MID
+            - strong [ref=e1445]: Eberechi Eze
+          - generic [ref=e1446]:
+            - generic [ref=e1447]: $8m
+            - button "Start" [ref=e1448] [cursor=pointer]
+        - generic [ref=e1449]:
+          - generic [ref=e1450]:
+            - generic [ref=e1451]: MID
+            - strong [ref=e1452]: Bernardo Silva
+          - generic [ref=e1453]:
+            - generic [ref=e1454]: $7.8m
+            - button "Start" [ref=e1455] [cursor=pointer]
+        - generic [ref=e1456]:
+          - generic [ref=e1457]:
+            - generic [ref=e1458]: MID
+            - strong [ref=e1459]: Désiré Doué
+          - generic [ref=e1460]:
+            - generic [ref=e1461]: $7.5m
+            - button "Start" [ref=e1462] [cursor=pointer]
+        - generic [ref=e1463]:
+          - generic [ref=e1464]:
+            - generic [ref=e1465]: MID
+            - strong [ref=e1466]: Florian Wirtz
+          - generic [ref=e1467]:
+            - generic [ref=e1468]: $7.5m
+            - button "Start" [ref=e1469] [cursor=pointer]
+        - generic [ref=e1470]:
+          - generic [ref=e1471]:
+            - generic [ref=e1472]: FWD
+            - strong [ref=e1473]: Harry Kane
+          - generic [ref=e1474]:
+            - generic [ref=e1475]: $10.5m
+            - button "Start" [ref=e1476] [cursor=pointer]
+        - generic [ref=e1477]:
+          - generic [ref=e1478]:
+            - generic [ref=e1479]: FWD
+            - strong [ref=e1480]: Lautaro Martínez
+          - generic [ref=e1481]:
+            - generic [ref=e1482]: $8.8m
+            - button "Start" [ref=e1483] [cursor=pointer]
+        - generic [ref=e1484]:
+          - generic [ref=e1485]:
+            - generic [ref=e1486]: FWD
+            - strong [ref=e1487]: Ferran Torres
+          - generic [ref=e1488]:
+            - generic [ref=e1489]: $7.8m
+            - button "Start" [ref=e1490] [cursor=pointer]
+        - generic [ref=e1491]:
+          - generic [ref=e1492]:
+            - generic [ref=e1493]: FWD
+            - strong [ref=e1494]: Matheus Cunha
+          - generic [ref=e1495]:
+            - generic [ref=e1496]: $7.3m
+            - button "Start" [ref=e1497] [cursor=pointer]
+        - generic [ref=e1498]:
+          - generic [ref=e1499]:
+            - generic [ref=e1500]: FWD
+            - strong [ref=e1501]: Patrik Schick
+          - generic [ref=e1502]:
+            - generic [ref=e1503]: $7.3m
+            - button "Start" [ref=e1504] [cursor=pointer]

@@ -1,0 +1,1020 @@
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: World Cup Fantasy Draft
+      - heading "Draft" [level=1] [ref=e7]
+    - generic [ref=e8]:
+      - generic [ref=e9]: Pedro
+      - button "Log Out" [ref=e10] [cursor=pointer]
+  - navigation "Main menu" [ref=e11]:
+    - button "My Team" [ref=e12] [cursor=pointer]
+    - button "League Standings" [ref=e13] [cursor=pointer]
+    - button "Draft" [ref=e14] [cursor=pointer]
+    - button "Player DB" [ref=e15] [cursor=pointer]
+    - button "Rules" [ref=e16] [cursor=pointer]
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Snake Draft" [level=2] [ref=e21]
+          - paragraph [ref=e22]: Pick 1 · Round 1
+        - button "Reset Draft" [ref=e23] [cursor=pointer]
+      - generic [ref=e24]:
+        - generic [ref=e25]: On the clock
+        - strong [ref=e26]: Pedro
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]: "1"
+          - strong [ref=e30]: Pedro
+        - generic [ref=e31]:
+          - generic [ref=e32]: "2"
+          - strong [ref=e33]: Tesla Team
+        - generic [ref=e34]:
+          - generic [ref=e35]: "3"
+          - strong [ref=e36]: Monarcas
+        - generic [ref=e37]:
+          - generic [ref=e38]: "4"
+          - strong [ref=e39]: Aidan
+        - generic [ref=e40]:
+          - generic [ref=e41]: "5"
+          - strong [ref=e42]: Sam
+        - generic [ref=e43]:
+          - generic [ref=e44]: "6"
+          - strong [ref=e45]: Hang He Chan Love
+    - generic [ref=e46]:
+      - generic [ref=e48]:
+        - heading "Available Players" [level=2] [ref=e49]
+        - paragraph [ref=e50]: 1,248 undrafted players
+      - generic [ref=e51]:
+        - textbox "Search player or team" [ref=e52]
+        - combobox [ref=e53]:
+          - option "All positions" [selected]
+          - option "GK"
+          - option "DEF"
+          - option "MID"
+          - option "FWD"
+        - combobox [ref=e54]:
+          - 'option "Sort: Price" [selected]'
+          - 'option "Sort: Selected %"'
+          - 'option "Sort: Name"'
+      - generic [ref=e55]:
+        - article [ref=e56]:
+          - generic [ref=e57]:
+            - strong [ref=e58]: Kylian Mbappé
+            - generic [ref=e59]: FWD · FRA
+          - generic [ref=e60]:
+            - generic [ref=e61]: $10.5m
+            - generic [ref=e62]: 50.6%
+            - button "Pick" [ref=e63] [cursor=pointer]
+        - article [ref=e64]:
+          - generic [ref=e65]:
+            - strong [ref=e66]: Harry Kane
+            - generic [ref=e67]: FWD · ENG
+          - generic [ref=e68]:
+            - generic [ref=e69]: $10.5m
+            - generic [ref=e70]: 37.6%
+            - button "Pick" [ref=e71] [cursor=pointer]
+        - article [ref=e72]:
+          - generic [ref=e73]:
+            - strong [ref=e74]: Erling Haaland
+            - generic [ref=e75]: FWD · NOR
+          - generic [ref=e76]:
+            - generic [ref=e77]: $10.5m
+            - generic [ref=e78]: 33.5%
+            - button "Pick" [ref=e79] [cursor=pointer]
+        - article [ref=e80]:
+          - generic [ref=e81]:
+            - strong [ref=e82]: Lamine Yamal
+            - generic [ref=e83]: MID · ESP
+          - generic [ref=e84]:
+            - generic [ref=e85]: $10m
+            - generic [ref=e86]: 45.2%
+            - button "Pick" [ref=e87] [cursor=pointer]
+        - article [ref=e88]:
+          - generic [ref=e89]:
+            - strong [ref=e90]: Ousmane Dembélé
+            - generic [ref=e91]: MID · FRA
+          - generic [ref=e92]:
+            - generic [ref=e93]: $10m
+            - generic [ref=e94]: 19.5%
+            - button "Pick" [ref=e95] [cursor=pointer]
+        - article [ref=e96]:
+          - generic [ref=e97]:
+            - strong [ref=e98]: Lionel Messi
+            - generic [ref=e99]: FWD · ARG
+          - generic [ref=e100]:
+            - generic [ref=e101]: $10m
+            - generic [ref=e102]: 18%
+            - button "Pick" [ref=e103] [cursor=pointer]
+        - article [ref=e104]:
+          - generic [ref=e105]:
+            - strong [ref=e106]: Vinícius Júnior
+            - generic [ref=e107]: MID · BRA
+          - generic [ref=e108]:
+            - generic [ref=e109]: $10m
+            - generic [ref=e110]: 14.1%
+            - button "Pick" [ref=e111] [cursor=pointer]
+        - article [ref=e112]:
+          - generic [ref=e113]:
+            - strong [ref=e114]: Cristiano Ronaldo
+            - generic [ref=e115]: FWD · POR
+          - generic [ref=e116]:
+            - generic [ref=e117]: $10m
+            - generic [ref=e118]: 12.7%
+            - button "Pick" [ref=e119] [cursor=pointer]
+        - article [ref=e120]:
+          - generic [ref=e121]:
+            - strong [ref=e122]: Mohamed Salah
+            - generic [ref=e123]: MID · EGY
+          - generic [ref=e124]:
+            - generic [ref=e125]: $10m
+            - generic [ref=e126]: 5.8%
+            - button "Pick" [ref=e127] [cursor=pointer]
+        - article [ref=e128]:
+          - generic [ref=e129]:
+            - strong [ref=e130]: Michael Olise
+            - generic [ref=e131]: MID · FRA
+          - generic [ref=e132]:
+            - generic [ref=e133]: $9.5m
+            - generic [ref=e134]: 23.1%
+            - button "Pick" [ref=e135] [cursor=pointer]
+        - article [ref=e136]:
+          - generic [ref=e137]:
+            - strong [ref=e138]: Bukayo Saka
+            - generic [ref=e139]: MID · ENG
+          - generic [ref=e140]:
+            - generic [ref=e141]: $9.5m
+            - generic [ref=e142]: 6%
+            - button "Pick" [ref=e143] [cursor=pointer]
+        - article [ref=e144]:
+          - generic [ref=e145]:
+            - strong [ref=e146]: Lautaro Martínez
+            - generic [ref=e147]: FWD · ARG
+          - generic [ref=e148]:
+            - generic [ref=e149]: $8.8m
+            - generic [ref=e150]: 3.9%
+            - button "Pick" [ref=e151] [cursor=pointer]
+        - article [ref=e152]:
+          - generic [ref=e153]:
+            - strong [ref=e154]: Julián Alvarez
+            - generic [ref=e155]: FWD · ARG
+          - generic [ref=e156]:
+            - generic [ref=e157]: $8.6m
+            - generic [ref=e158]: 16.3%
+            - button "Pick" [ref=e159] [cursor=pointer]
+        - article [ref=e160]:
+          - generic [ref=e161]:
+            - strong [ref=e162]: Bruno Fernandes
+            - generic [ref=e163]: MID · POR
+          - generic [ref=e164]:
+            - generic [ref=e165]: $8.5m
+            - generic [ref=e166]: 49.3%
+            - button "Pick" [ref=e167] [cursor=pointer]
+        - article [ref=e168]:
+          - generic [ref=e169]:
+            - strong [ref=e170]: Jude Bellingham
+            - generic [ref=e171]: MID · ENG
+          - generic [ref=e172]:
+            - generic [ref=e173]: $8.3m
+            - generic [ref=e174]: 9.5%
+            - button "Pick" [ref=e175] [cursor=pointer]
+        - article [ref=e176]:
+          - generic [ref=e177]:
+            - strong [ref=e178]: Raphinha
+            - generic [ref=e179]: MID · BRA
+          - generic [ref=e180]:
+            - generic [ref=e181]: $8.2m
+            - generic [ref=e182]: 21.2%
+            - button "Pick" [ref=e183] [cursor=pointer]
+        - article [ref=e184]:
+          - generic [ref=e185]:
+            - strong [ref=e186]: Luis Díaz
+            - generic [ref=e187]: MID · COL
+          - generic [ref=e188]:
+            - generic [ref=e189]: $8.1m
+            - generic [ref=e190]: 18.8%
+            - button "Pick" [ref=e191] [cursor=pointer]
+        - article [ref=e192]:
+          - generic [ref=e193]:
+            - strong [ref=e194]: Mikel Oyarzabal
+            - generic [ref=e195]: FWD · ESP
+          - generic [ref=e196]:
+            - generic [ref=e197]: $8.1m
+            - generic [ref=e198]: 16.6%
+            - button "Pick" [ref=e199] [cursor=pointer]
+        - article [ref=e200]:
+          - generic [ref=e201]:
+            - strong [ref=e202]: Pedri
+            - generic [ref=e203]: MID · ESP
+          - generic [ref=e204]:
+            - generic [ref=e205]: $8.1m
+            - generic [ref=e206]: 9.7%
+            - button "Pick" [ref=e207] [cursor=pointer]
+        - article [ref=e208]:
+          - generic [ref=e209]:
+            - strong [ref=e210]: Jamal Musiala
+            - generic [ref=e211]: MID · GER
+          - generic [ref=e212]:
+            - generic [ref=e213]: $8m
+            - generic [ref=e214]: 12.3%
+            - button "Pick" [ref=e215] [cursor=pointer]
+        - article [ref=e216]:
+          - generic [ref=e217]:
+            - strong [ref=e218]: Rayan Cherki
+            - generic [ref=e219]: MID · FRA
+          - generic [ref=e220]:
+            - generic [ref=e221]: $8m
+            - generic [ref=e222]: 7.7%
+            - button "Pick" [ref=e223] [cursor=pointer]
+        - article [ref=e224]:
+          - generic [ref=e225]:
+            - strong [ref=e226]: Alexander Isak
+            - generic [ref=e227]: FWD · SWE
+          - generic [ref=e228]:
+            - generic [ref=e229]: $8m
+            - generic [ref=e230]: 3.3%
+            - button "Pick" [ref=e231] [cursor=pointer]
+        - article [ref=e232]:
+          - generic [ref=e233]:
+            - strong [ref=e234]: Eberechi Eze
+            - generic [ref=e235]: MID · ENG
+          - generic [ref=e236]:
+            - generic [ref=e237]: $8m
+            - generic [ref=e238]: 1.6%
+            - button "Pick" [ref=e239] [cursor=pointer]
+        - article [ref=e240]:
+          - generic [ref=e241]:
+            - strong [ref=e242]: Bradley Barcola
+            - generic [ref=e243]: MID · FRA
+          - generic [ref=e244]:
+            - generic [ref=e245]: $8m
+            - generic [ref=e246]: 1.5%
+            - button "Pick" [ref=e247] [cursor=pointer]
+        - article [ref=e248]:
+          - generic [ref=e249]:
+            - strong [ref=e250]: Ollie Watkins
+            - generic [ref=e251]: FWD · ENG
+          - generic [ref=e252]:
+            - generic [ref=e253]: $7.9m
+            - generic [ref=e254]: 1.5%
+            - button "Pick" [ref=e255] [cursor=pointer]
+        - article [ref=e256]:
+          - generic [ref=e257]:
+            - strong [ref=e258]: Kai Havertz
+            - generic [ref=e259]: FWD · GER
+          - generic [ref=e260]:
+            - generic [ref=e261]: $7.8m
+            - generic [ref=e262]: 9.7%
+            - button "Pick" [ref=e263] [cursor=pointer]
+        - article [ref=e264]:
+          - generic [ref=e265]:
+            - strong [ref=e266]: Viktor Gyökeres
+            - generic [ref=e267]: FWD · SWE
+          - generic [ref=e268]:
+            - generic [ref=e269]: $7.8m
+            - generic [ref=e270]: 6.2%
+            - button "Pick" [ref=e271] [cursor=pointer]
+        - article [ref=e272]:
+          - generic [ref=e273]:
+            - strong [ref=e274]: Nico Williams
+            - generic [ref=e275]: MID · ESP
+          - generic [ref=e276]:
+            - generic [ref=e277]: $7.8m
+            - generic [ref=e278]: 3.9%
+            - button "Pick" [ref=e279] [cursor=pointer]
+        - article [ref=e280]:
+          - generic [ref=e281]:
+            - strong [ref=e282]: Ferran Torres
+            - generic [ref=e283]: FWD · ESP
+          - generic [ref=e284]:
+            - generic [ref=e285]: $7.8m
+            - generic [ref=e286]: 3.3%
+            - button "Pick" [ref=e287] [cursor=pointer]
+        - article [ref=e288]:
+          - generic [ref=e289]:
+            - strong [ref=e290]: Bernardo Silva
+            - generic [ref=e291]: MID · POR
+          - generic [ref=e292]:
+            - generic [ref=e293]: $7.8m
+            - generic [ref=e294]: 2.4%
+            - button "Pick" [ref=e295] [cursor=pointer]
+        - article [ref=e296]:
+          - generic [ref=e297]:
+            - strong [ref=e298]: Omar Marmoush
+            - generic [ref=e299]: FWD · EGY
+          - generic [ref=e300]:
+            - generic [ref=e301]: $7.8m
+            - generic [ref=e302]: 2.3%
+            - button "Pick" [ref=e303] [cursor=pointer]
+        - article [ref=e304]:
+          - generic [ref=e305]:
+            - strong [ref=e306]: Rafael Leão
+            - generic [ref=e307]: MID · POR
+          - generic [ref=e308]:
+            - generic [ref=e309]: $7.8m
+            - generic [ref=e310]: 2%
+            - button "Pick" [ref=e311] [cursor=pointer]
+        - article [ref=e312]:
+          - generic [ref=e313]:
+            - strong [ref=e314]: Martin Ødegaard
+            - generic [ref=e315]: MID · NOR
+          - generic [ref=e316]:
+            - generic [ref=e317]: $7.7m
+            - generic [ref=e318]: 4.4%
+            - button "Pick" [ref=e319] [cursor=pointer]
+        - article [ref=e320]:
+          - generic [ref=e321]:
+            - strong [ref=e322]: Cody Gakpo
+            - generic [ref=e323]: FWD · NED
+          - generic [ref=e324]:
+            - generic [ref=e325]: $7.7m
+            - generic [ref=e326]: 3.1%
+            - button "Pick" [ref=e327] [cursor=pointer]
+        - article [ref=e328]:
+          - generic [ref=e329]:
+            - strong [ref=e330]: Dani Olmo
+            - generic [ref=e331]: MID · ESP
+          - generic [ref=e332]:
+            - generic [ref=e333]: $7.7m
+            - generic [ref=e334]: 3%
+            - button "Pick" [ref=e335] [cursor=pointer]
+        - article [ref=e336]:
+          - generic [ref=e337]:
+            - strong [ref=e338]: Sadio Mané
+            - generic [ref=e339]: MID · SEN
+          - generic [ref=e340]:
+            - generic [ref=e341]: $7.6m
+            - generic [ref=e342]: 2%
+            - button "Pick" [ref=e343] [cursor=pointer]
+        - article [ref=e344]:
+          - generic [ref=e345]:
+            - strong [ref=e346]: Florian Wirtz
+            - generic [ref=e347]: MID · GER
+          - generic [ref=e348]:
+            - generic [ref=e349]: $7.5m
+            - generic [ref=e350]: 22.8%
+            - button "Pick" [ref=e351] [cursor=pointer]
+        - article [ref=e352]:
+          - generic [ref=e353]:
+            - strong [ref=e354]: Jérémy Doku
+            - generic [ref=e355]: MID · BEL
+          - generic [ref=e356]:
+            - generic [ref=e357]: $7.5m
+            - generic [ref=e358]: 12.4%
+            - button "Pick" [ref=e359] [cursor=pointer]
+        - article [ref=e360]:
+          - generic [ref=e361]:
+            - strong [ref=e362]: Federico Valverde
+            - generic [ref=e363]: MID · URU
+          - generic [ref=e364]:
+            - generic [ref=e365]: $7.5m
+            - generic [ref=e366]: 6%
+            - button "Pick" [ref=e367] [cursor=pointer]
+        - article [ref=e368]:
+          - generic [ref=e369]:
+            - strong [ref=e370]: Kevin De Bruyne
+            - generic [ref=e371]: MID · BEL
+          - generic [ref=e372]:
+            - generic [ref=e373]: $7.5m
+            - generic [ref=e374]: 5.4%
+            - button "Pick" [ref=e375] [cursor=pointer]
+        - article [ref=e376]:
+          - generic [ref=e377]:
+            - strong [ref=e378]: Enzo Fernández
+            - generic [ref=e379]: MID · ARG
+          - generic [ref=e380]:
+            - generic [ref=e381]: $7.5m
+            - generic [ref=e382]: 3.5%
+            - button "Pick" [ref=e383] [cursor=pointer]
+        - article [ref=e384]:
+          - generic [ref=e385]:
+            - strong [ref=e386]: Désiré Doué
+            - generic [ref=e387]: MID · FRA
+          - generic [ref=e388]:
+            - generic [ref=e389]: $7.5m
+            - generic [ref=e390]: 3.3%
+            - button "Pick" [ref=e391] [cursor=pointer]
+        - article [ref=e392]:
+          - generic [ref=e393]:
+            - strong [ref=e394]: Breel Embolo
+            - generic [ref=e395]: FWD · SUI
+          - generic [ref=e396]:
+            - generic [ref=e397]: $7.5m
+            - generic [ref=e398]: 2.5%
+            - button "Pick" [ref=e399] [cursor=pointer]
+        - article [ref=e400]:
+          - generic [ref=e401]:
+            - strong [ref=e402]: Marcus Rashford
+            - generic [ref=e403]: MID · ENG
+          - generic [ref=e404]:
+            - generic [ref=e405]: $7.5m
+            - generic [ref=e406]: 2%
+            - button "Pick" [ref=e407] [cursor=pointer]
+        - article [ref=e408]:
+          - generic [ref=e409]:
+            - strong [ref=e410]: Rodri
+            - generic [ref=e411]: MID · ESP
+          - generic [ref=e412]:
+            - generic [ref=e413]: $7.5m
+            - generic [ref=e414]: 1.8%
+            - button "Pick" [ref=e415] [cursor=pointer]
+        - article [ref=e416]:
+          - generic [ref=e417]:
+            - strong [ref=e418]: Darwin Núñez
+            - generic [ref=e419]: FWD · URU
+          - generic [ref=e420]:
+            - generic [ref=e421]: $7.5m
+            - generic [ref=e422]: 1.6%
+            - button "Pick" [ref=e423] [cursor=pointer]
+        - article [ref=e424]:
+          - generic [ref=e425]:
+            - strong [ref=e426]: Gonçalo Ramos
+            - generic [ref=e427]: FWD · POR
+          - generic [ref=e428]:
+            - generic [ref=e429]: $7.5m
+            - generic [ref=e430]: 0.8%
+            - button "Pick" [ref=e431] [cursor=pointer]
+        - article [ref=e432]:
+          - generic [ref=e433]:
+            - strong [ref=e434]: Marcus Thuram
+            - generic [ref=e435]: FWD · FRA
+          - generic [ref=e436]:
+            - generic [ref=e437]: $7.5m
+            - generic [ref=e438]: 0.7%
+            - button "Pick" [ref=e439] [cursor=pointer]
+        - article [ref=e440]:
+          - generic [ref=e441]:
+            - strong [ref=e442]: Ivan Toney
+            - generic [ref=e443]: FWD · ENG
+          - generic [ref=e444]:
+            - generic [ref=e445]: $7.5m
+            - generic [ref=e446]: 0.3%
+            - button "Pick" [ref=e447] [cursor=pointer]
+        - article [ref=e448]:
+          - generic [ref=e449]:
+            - strong [ref=e450]: Son Heung-Min
+            - generic [ref=e451]: FWD · KOR
+          - generic [ref=e452]:
+            - generic [ref=e453]: $7.4m
+            - generic [ref=e454]: 2.2%
+            - button "Pick" [ref=e455] [cursor=pointer]
+        - article [ref=e456]:
+          - generic [ref=e457]:
+            - strong [ref=e458]: Romelu Lukaku
+            - generic [ref=e459]: FWD · BEL
+          - generic [ref=e460]:
+            - generic [ref=e461]: $7.4m
+            - generic [ref=e462]: 2.1%
+            - button "Pick" [ref=e463] [cursor=pointer]
+        - article [ref=e464]:
+          - generic [ref=e465]:
+            - strong [ref=e466]: Memphis Depay
+            - generic [ref=e467]: FWD · NED
+          - generic [ref=e468]:
+            - generic [ref=e469]: $7.4m
+            - generic [ref=e470]: 1.2%
+            - button "Pick" [ref=e471] [cursor=pointer]
+        - article [ref=e472]:
+          - generic [ref=e473]:
+            - strong [ref=e474]: Leroy Sané
+            - generic [ref=e475]: MID · GER
+          - generic [ref=e476]:
+            - generic [ref=e477]: $7.4m
+            - generic [ref=e478]: 1.1%
+            - button "Pick" [ref=e479] [cursor=pointer]
+        - article [ref=e480]:
+          - generic [ref=e481]:
+            - strong [ref=e482]: Matheus Cunha
+            - generic [ref=e483]: FWD · BRA
+          - generic [ref=e484]:
+            - generic [ref=e485]: $7.3m
+            - generic [ref=e486]: 3.6%
+            - button "Pick" [ref=e487] [cursor=pointer]
+        - article [ref=e488]:
+          - generic [ref=e489]:
+            - strong [ref=e490]: Patrik Schick
+            - generic [ref=e491]: FWD · CZE
+          - generic [ref=e492]:
+            - generic [ref=e493]: $7.3m
+            - generic [ref=e494]: 0.8%
+            - button "Pick" [ref=e495] [cursor=pointer]
+        - article [ref=e496]:
+          - generic [ref=e497]:
+            - strong [ref=e498]: Antoine Semenyo
+            - generic [ref=e499]: FWD · GHA
+          - generic [ref=e500]:
+            - generic [ref=e501]: $7.2m
+            - generic [ref=e502]: 4.7%
+            - button "Pick" [ref=e503] [cursor=pointer]
+        - article [ref=e504]:
+          - generic [ref=e505]:
+            - strong [ref=e506]: Neymar
+            - generic [ref=e507]: MID · BRA
+          - generic [ref=e508]:
+            - generic [ref=e509]: $7.2m
+            - generic [ref=e510]: 3.3%
+            - button "Pick" [ref=e511] [cursor=pointer]
+        - article [ref=e512]:
+          - generic [ref=e513]:
+            - strong [ref=e514]: Nick Woltemade
+            - generic [ref=e515]: FWD · GER
+          - generic [ref=e516]:
+            - generic [ref=e517]: $7.2m
+            - generic [ref=e518]: 1.4%
+            - button "Pick" [ref=e519] [cursor=pointer]
+        - article [ref=e520]:
+          - generic [ref=e521]:
+            - strong [ref=e522]: Morgan Rogers
+            - generic [ref=e523]: MID · ENG
+          - generic [ref=e524]:
+            - generic [ref=e525]: $7.2m
+            - generic [ref=e526]: 1%
+            - button "Pick" [ref=e527] [cursor=pointer]
+        - article [ref=e528]:
+          - generic [ref=e529]:
+            - strong [ref=e530]: Salem Al Dawsari
+            - generic [ref=e531]: MID · KSA
+          - generic [ref=e532]:
+            - generic [ref=e533]: $7.2m
+            - generic [ref=e534]: 0.2%
+            - button "Pick" [ref=e535] [cursor=pointer]
+        - article [ref=e536]:
+          - generic [ref=e537]:
+            - strong [ref=e538]: Hakan Çalhanoglu
+            - generic [ref=e539]: MID · TUR
+          - generic [ref=e540]:
+            - generic [ref=e541]: $7.1m
+            - generic [ref=e542]: 2.9%
+            - button "Pick" [ref=e543] [cursor=pointer]
+        - article [ref=e544]:
+          - generic [ref=e545]:
+            - strong [ref=e546]: Arda Güler
+            - generic [ref=e547]: MID · TUR
+          - generic [ref=e548]:
+            - generic [ref=e549]: $7m
+            - generic [ref=e550]: 8.7%
+            - button "Pick" [ref=e551] [cursor=pointer]
+        - article [ref=e552]:
+          - generic [ref=e553]:
+            - strong [ref=e554]: Declan Rice
+            - generic [ref=e555]: MID · ENG
+          - generic [ref=e556]:
+            - generic [ref=e557]: $7m
+            - generic [ref=e558]: 6.9%
+            - button "Pick" [ref=e559] [cursor=pointer]
+        - article [ref=e560]:
+          - generic [ref=e561]:
+            - strong [ref=e562]: Christian Pulisic
+            - generic [ref=e563]: MID · USA
+          - generic [ref=e564]:
+            - generic [ref=e565]: $7m
+            - generic [ref=e566]: 5.2%
+            - button "Pick" [ref=e567] [cursor=pointer]
+        - article [ref=e568]:
+          - generic [ref=e569]:
+            - strong [ref=e570]: Kenan Yildiz
+            - generic [ref=e571]: MID · TUR
+          - generic [ref=e572]:
+            - generic [ref=e573]: $7m
+            - generic [ref=e574]: 3.8%
+            - button "Pick" [ref=e575] [cursor=pointer]
+        - article [ref=e576]:
+          - generic [ref=e577]:
+            - strong [ref=e578]: Raúl Jiménez
+            - generic [ref=e579]: FWD · MEX
+          - generic [ref=e580]:
+            - generic [ref=e581]: $7m
+            - generic [ref=e582]: 2.6%
+            - button "Pick" [ref=e583] [cursor=pointer]
+        - article [ref=e584]:
+          - generic [ref=e585]:
+            - strong [ref=e586]: Frenkie de Jong
+            - generic [ref=e587]: MID · NED
+          - generic [ref=e588]:
+            - generic [ref=e589]: $7m
+            - generic [ref=e590]: 1.6%
+            - button "Pick" [ref=e591] [cursor=pointer]
+        - article [ref=e592]:
+          - generic [ref=e593]:
+            - strong [ref=e594]: Jonathan David
+            - generic [ref=e595]: FWD · CAN
+          - generic [ref=e596]:
+            - generic [ref=e597]: $7m
+            - generic [ref=e598]: 1.3%
+            - button "Pick" [ref=e599] [cursor=pointer]
+        - article [ref=e600]:
+          - generic [ref=e601]:
+            - strong [ref=e602]: Anthony Gordon
+            - generic [ref=e603]: MID · ENG
+          - generic [ref=e604]:
+            - generic [ref=e605]: $7m
+            - generic [ref=e606]: 1%
+            - button "Pick" [ref=e607] [cursor=pointer]
+        - article [ref=e608]:
+          - generic [ref=e609]:
+            - strong [ref=e610]: Takefusa Kubo
+            - generic [ref=e611]: MID · JPN
+          - generic [ref=e612]:
+            - generic [ref=e613]: $7m
+            - generic [ref=e614]: 1%
+            - button "Pick" [ref=e615] [cursor=pointer]
+        - article [ref=e616]:
+          - generic [ref=e617]:
+            - strong [ref=e618]: Ayase Ueda
+            - generic [ref=e619]: FWD · JPN
+          - generic [ref=e620]:
+            - generic [ref=e621]: $7m
+            - generic [ref=e622]: 0.7%
+            - button "Pick" [ref=e623] [cursor=pointer]
+        - article [ref=e624]:
+          - generic [ref=e625]:
+            - strong [ref=e626]: Marcel Sabitzer
+            - generic [ref=e627]: MID · AUT
+          - generic [ref=e628]:
+            - generic [ref=e629]: $6.8m
+            - generic [ref=e630]: 3.2%
+            - button "Pick" [ref=e631] [cursor=pointer]
+        - article [ref=e632]:
+          - generic [ref=e633]:
+            - strong [ref=e634]: Bruno Guimarães
+            - generic [ref=e635]: MID · BRA
+          - generic [ref=e636]:
+            - generic [ref=e637]: $6.8m
+            - generic [ref=e638]: 1.7%
+            - button "Pick" [ref=e639] [cursor=pointer]
+        - article [ref=e640]:
+          - generic [ref=e641]:
+            - strong [ref=e642]: Moisés Caicedo
+            - generic [ref=e643]: MID · ECU
+          - generic [ref=e644]:
+            - generic [ref=e645]: $6.8m
+            - generic [ref=e646]: 1.6%
+            - button "Pick" [ref=e647] [cursor=pointer]
+        - article [ref=e648]:
+          - generic [ref=e649]:
+            - strong [ref=e650]: Alexander Sørloth
+            - generic [ref=e651]: FWD · NOR
+          - generic [ref=e652]:
+            - generic [ref=e653]: $6.8m
+            - generic [ref=e654]: 1.4%
+            - button "Pick" [ref=e655] [cursor=pointer]
+        - article [ref=e656]:
+          - generic [ref=e657]:
+            - strong [ref=e658]: Fabián Ruiz
+            - generic [ref=e659]: MID · ESP
+          - generic [ref=e660]:
+            - generic [ref=e661]: $6.8m
+            - generic [ref=e662]: 1%
+            - button "Pick" [ref=e663] [cursor=pointer]
+        - article [ref=e664]:
+          - generic [ref=e665]:
+            - strong [ref=e666]: Dan Ndoye
+            - generic [ref=e667]: FWD · SUI
+          - generic [ref=e668]:
+            - generic [ref=e669]: $6.8m
+            - generic [ref=e670]: 0.7%
+            - button "Pick" [ref=e671] [cursor=pointer]
+        - article [ref=e672]:
+          - generic [ref=e673]:
+            - strong [ref=e674]: Santiago Giménez
+            - generic [ref=e675]: FWD · MEX
+          - generic [ref=e676]:
+            - generic [ref=e677]: $6.8m
+            - generic [ref=e678]: 0.6%
+            - button "Pick" [ref=e679] [cursor=pointer]
+        - article [ref=e680]:
+          - generic [ref=e681]:
+            - strong [ref=e682]: Ismael Saibari
+            - generic [ref=e683]: MID · MAR
+          - generic [ref=e684]:
+            - generic [ref=e685]: $6.8m
+            - generic [ref=e686]: 0.5%
+            - button "Pick" [ref=e687] [cursor=pointer]
+        - article [ref=e688]:
+          - generic [ref=e689]:
+            - strong [ref=e690]: Quinten Timber
+            - generic [ref=e691]: MID · NED
+          - generic [ref=e692]:
+            - generic [ref=e693]: $6.8m
+            - generic [ref=e694]: 0.5%
+            - button "Pick" [ref=e695] [cursor=pointer]
+        - article [ref=e696]:
+          - generic [ref=e697]:
+            - strong [ref=e698]: Rubén Vargas
+            - generic [ref=e699]: MID · SUI
+          - generic [ref=e700]:
+            - generic [ref=e701]: $6.8m
+            - generic [ref=e702]: 0.5%
+            - button "Pick" [ref=e703] [cursor=pointer]
+        - article [ref=e704]:
+          - generic [ref=e705]:
+            - strong [ref=e706]: Ante Budimir
+            - generic [ref=e707]: FWD · CRO
+          - generic [ref=e708]:
+            - generic [ref=e709]: $6.8m
+            - generic [ref=e710]: 0.2%
+            - button "Pick" [ref=e711] [cursor=pointer]
+        - article [ref=e712]:
+          - generic [ref=e713]:
+            - strong [ref=e714]: Diego Gómez
+            - generic [ref=e715]: MID · PAR
+          - generic [ref=e716]:
+            - generic [ref=e717]: $6.8m
+            - generic [ref=e718]: 0.2%
+            - button "Pick" [ref=e719] [cursor=pointer]
+        - article [ref=e720]:
+          - generic [ref=e721]:
+            - strong [ref=e722]: Seko Fofana
+            - generic [ref=e723]: MID · CIV
+          - generic [ref=e724]:
+            - generic [ref=e725]: $6.8m
+            - generic [ref=e726]: 0.1%
+            - button "Pick" [ref=e727] [cursor=pointer]
+        - article [ref=e728]:
+          - generic [ref=e729]:
+            - strong [ref=e730]: Borja Iglesias
+            - generic [ref=e731]: FWD · ESP
+          - generic [ref=e732]:
+            - generic [ref=e733]: $6.8m
+            - generic [ref=e734]: 0.1%
+            - button "Pick" [ref=e735] [cursor=pointer]
+        - article [ref=e736]:
+          - generic [ref=e737]:
+            - strong [ref=e738]: Nicolas Jackson
+            - generic [ref=e739]: FWD · SEN
+          - generic [ref=e740]:
+            - generic [ref=e741]: $6.7m
+            - generic [ref=e742]: 0.4%
+            - button "Pick" [ref=e743] [cursor=pointer]
+        - article [ref=e744]:
+          - generic [ref=e745]:
+            - strong [ref=e746]: Alexis Mac Allister
+            - generic [ref=e747]: MID · ARG
+          - generic [ref=e748]:
+            - generic [ref=e749]: $6.6m
+            - generic [ref=e750]: 3.2%
+            - button "Pick" [ref=e751] [cursor=pointer]
+        - article [ref=e752]:
+          - generic [ref=e753]:
+            - strong [ref=e754]: Leandro Trossard
+            - generic [ref=e755]: MID · BEL
+          - generic [ref=e756]:
+            - generic [ref=e757]: $6.6m
+            - generic [ref=e758]: 2.2%
+            - button "Pick" [ref=e759] [cursor=pointer]
+        - article [ref=e760]:
+          - generic [ref=e761]:
+            - strong [ref=e762]: Deniz Undav
+            - generic [ref=e763]: FWD · GER
+          - generic [ref=e764]:
+            - generic [ref=e765]: $6.6m
+            - generic [ref=e766]: 1.2%
+            - button "Pick" [ref=e767] [cursor=pointer]
+        - article [ref=e768]:
+          - generic [ref=e769]:
+            - strong [ref=e770]: Julio Enciso
+            - generic [ref=e771]: MID · PAR
+          - generic [ref=e772]:
+            - generic [ref=e773]: $6.6m
+            - generic [ref=e774]: 0.3%
+            - button "Pick" [ref=e775] [cursor=pointer]
+        - article [ref=e776]:
+          - generic [ref=e777]:
+            - strong [ref=e778]: Scott McTominay
+            - generic [ref=e779]: MID · SCO
+          - generic [ref=e780]:
+            - generic [ref=e781]: $6.5m
+            - generic [ref=e782]: 10.6%
+            - button "Pick" [ref=e783] [cursor=pointer]
+        - article [ref=e784]:
+          - generic [ref=e785]:
+            - strong [ref=e786]: James Rodríguez
+            - generic [ref=e787]: MID · COL
+          - generic [ref=e788]:
+            - generic [ref=e789]: $6.5m
+            - generic [ref=e790]: 4.2%
+            - button "Pick" [ref=e791] [cursor=pointer]
+        - article [ref=e792]:
+          - generic [ref=e793]:
+            - strong [ref=e794]: João Neves
+            - generic [ref=e795]: MID · POR
+          - generic [ref=e796]:
+            - generic [ref=e797]: $6.5m
+            - generic [ref=e798]: 4.1%
+            - button "Pick" [ref=e799] [cursor=pointer]
+        - article [ref=e800]:
+          - generic [ref=e801]:
+            - strong [ref=e802]: João Félix
+            - generic [ref=e803]: FWD · POR
+          - generic [ref=e804]:
+            - generic [ref=e805]: $6.5m
+            - generic [ref=e806]: 2.2%
+            - button "Pick" [ref=e807] [cursor=pointer]
+        - article [ref=e808]:
+          - generic [ref=e809]:
+            - strong [ref=e810]: Tijjani Reijnders
+            - generic [ref=e811]: MID · NED
+          - generic [ref=e812]:
+            - generic [ref=e813]: $6.5m
+            - generic [ref=e814]: 1.7%
+            - button "Pick" [ref=e815] [cursor=pointer]
+        - article [ref=e816]:
+          - generic [ref=e817]:
+            - strong [ref=e818]: Elliot Anderson
+            - generic [ref=e819]: MID · ENG
+          - generic [ref=e820]:
+            - generic [ref=e821]: $6.5m
+            - generic [ref=e822]: 1%
+            - button "Pick" [ref=e823] [cursor=pointer]
+        - article [ref=e824]:
+          - generic [ref=e825]:
+            - strong [ref=e826]: Aurélien Tchouaméni
+            - generic [ref=e827]: MID · FRA
+          - generic [ref=e828]:
+            - generic [ref=e829]: $6.5m
+            - generic [ref=e830]: 0.9%
+            - button "Pick" [ref=e831] [cursor=pointer]
+        - article [ref=e832]:
+          - generic [ref=e833]:
+            - strong [ref=e834]: Gavi
+            - generic [ref=e835]: MID · ESP
+          - generic [ref=e836]:
+            - generic [ref=e837]: $6.5m
+            - generic [ref=e838]: 0.9%
+            - button "Pick" [ref=e839] [cursor=pointer]
+        - article [ref=e840]:
+          - generic [ref=e841]:
+            - strong [ref=e842]: Riyad Mahrez
+            - generic [ref=e843]: MID · ALG
+          - generic [ref=e844]:
+            - generic [ref=e845]: $6.5m
+            - generic [ref=e846]: 0.7%
+            - button "Pick" [ref=e847] [cursor=pointer]
+        - article [ref=e848]:
+          - generic [ref=e849]:
+            - strong [ref=e850]: Gabriel Martinelli
+            - generic [ref=e851]: MID · BRA
+          - generic [ref=e852]:
+            - generic [ref=e853]: $6.5m
+            - generic [ref=e854]: 0.7%
+            - button "Pick" [ref=e855] [cursor=pointer]
+        - article [ref=e856]:
+          - generic [ref=e857]:
+            - strong [ref=e858]: Iliman Ndiaye
+            - generic [ref=e859]: FWD · SEN
+          - generic [ref=e860]:
+            - generic [ref=e861]: $6.5m
+            - generic [ref=e862]: 0.7%
+            - button "Pick" [ref=e863] [cursor=pointer]
+        - article [ref=e864]:
+          - generic [ref=e865]:
+            - strong [ref=e866]: Chris Wood
+            - generic [ref=e867]: FWD · NZL
+          - generic [ref=e868]:
+            - generic [ref=e869]: $6.5m
+            - generic [ref=e870]: 0.7%
+            - button "Pick" [ref=e871] [cursor=pointer]
+        - article [ref=e872]:
+          - generic [ref=e873]:
+            - strong [ref=e874]: Lucas Paquetá
+            - generic [ref=e875]: MID · BRA
+          - generic [ref=e876]:
+            - generic [ref=e877]: $6.5m
+            - generic [ref=e878]: 0.5%
+            - button "Pick" [ref=e879] [cursor=pointer]
+        - article [ref=e880]:
+          - generic [ref=e881]:
+            - strong [ref=e882]: Giorgian de Arrascaeta
+            - generic [ref=e883]: MID · URU
+          - generic [ref=e884]:
+            - generic [ref=e885]: $6.5m
+            - generic [ref=e886]: 0.4%
+            - button "Pick" [ref=e887] [cursor=pointer]
+        - article [ref=e888]:
+          - generic [ref=e889]:
+            - strong [ref=e890]: Jean-Philippe Mateta
+            - generic [ref=e891]: FWD · FRA
+          - generic [ref=e892]:
+            - generic [ref=e893]: $6.5m
+            - generic [ref=e894]: 0.3%
+            - button "Pick" [ref=e895] [cursor=pointer]
+        - article [ref=e896]:
+          - generic [ref=e897]:
+            - strong [ref=e898]: Thiago Almada
+            - generic [ref=e899]: MID · ARG
+          - generic [ref=e900]:
+            - generic [ref=e901]: $6.5m
+            - generic [ref=e902]: 0.2%
+            - button "Pick" [ref=e903] [cursor=pointer]
+        - article [ref=e904]:
+          - generic [ref=e905]:
+            - strong [ref=e906]: Martin Baturina
+            - generic [ref=e907]: MID · CRO
+          - generic [ref=e908]:
+            - generic [ref=e909]: $6.5m
+            - generic [ref=e910]: 0.2%
+            - button "Pick" [ref=e911] [cursor=pointer]
+        - article [ref=e912]:
+          - generic [ref=e913]:
+            - strong [ref=e914]: Fredrik Aursnes
+            - generic [ref=e915]: MID · NOR
+          - generic [ref=e916]:
+            - generic [ref=e917]: $6.5m
+            - generic [ref=e918]: 0.2%
+            - button "Pick" [ref=e919] [cursor=pointer]
+        - article [ref=e920]:
+          - generic [ref=e921]:
+            - strong [ref=e922]: Justin Kluivert
+            - generic [ref=e923]: MID · NED
+          - generic [ref=e924]:
+            - generic [ref=e925]: $6.5m
+            - generic [ref=e926]: 0.2%
+            - button "Pick" [ref=e927] [cursor=pointer]
+        - article [ref=e928]:
+          - generic [ref=e929]:
+            - strong [ref=e930]: Cédric Bakambu
+            - generic [ref=e931]: FWD · COD
+          - generic [ref=e932]:
+            - generic [ref=e933]: $6.5m
+            - generic [ref=e934]: 0.1%
+            - button "Pick" [ref=e935] [cursor=pointer]
+        - article [ref=e936]:
+          - generic [ref=e937]:
+            - strong [ref=e938]: Adalberto Carrasquilla
+            - generic [ref=e939]: MID · PAN
+          - generic [ref=e940]:
+            - generic [ref=e941]: $6.5m
+            - generic [ref=e942]: 0.1%
+            - button "Pick" [ref=e943] [cursor=pointer]
+        - article [ref=e944]:
+          - generic [ref=e945]:
+            - strong [ref=e946]: Antonio Sanabria
+            - generic [ref=e947]: FWD · PAR
+          - generic [ref=e948]:
+            - generic [ref=e949]: $6.5m
+            - generic [ref=e950]: 0.1%
+            - button "Pick" [ref=e951] [cursor=pointer]
+        - article [ref=e952]:
+          - generic [ref=e953]:
+            - strong [ref=e954]: Eldor Shomurodov
+            - generic [ref=e955]: FWD · UZB
+          - generic [ref=e956]:
+            - generic [ref=e957]: $6.5m
+            - generic [ref=e958]: 0.1%
+            - button "Pick" [ref=e959] [cursor=pointer]
+        - article [ref=e960]:
+          - generic [ref=e961]:
+            - strong [ref=e962]: Adam Hlozek
+            - generic [ref=e963]: FWD · CZE
+          - generic [ref=e964]:
+            - generic [ref=e965]: $6.5m
+            - generic [ref=e966]: 0.1%
+            - button "Pick" [ref=e967] [cursor=pointer]
+        - article [ref=e968]:
+          - generic [ref=e969]:
+            - strong [ref=e970]: Maximilian Beier
+            - generic [ref=e971]: FWD · GER
+          - generic [ref=e972]:
+            - generic [ref=e973]: $6.5m
+            - generic [ref=e974]: 0.1%
+            - button "Pick" [ref=e975] [cursor=pointer]
+        - article [ref=e976]:
+          - generic [ref=e977]:
+            - strong [ref=e978]: Vitinha
+            - generic [ref=e979]: MID · POR
+          - generic [ref=e980]:
+            - generic [ref=e981]: $6.4m
+            - generic [ref=e982]: 11.3%
+            - button "Pick" [ref=e983] [cursor=pointer]
+        - article [ref=e984]:
+          - generic [ref=e985]:
+            - strong [ref=e986]: Brahim Díaz
+            - generic [ref=e987]: MID · MAR
+          - generic [ref=e988]:
+            - generic [ref=e989]: $6.4m
+            - generic [ref=e990]: 1.5%
+            - button "Pick" [ref=e991] [cursor=pointer]
+        - article [ref=e992]:
+          - generic [ref=e993]:
+            - strong [ref=e994]: Pedro Neto
+            - generic [ref=e995]: MID · POR
+          - generic [ref=e996]:
+            - generic [ref=e997]: $6.4m
+            - generic [ref=e998]: 0.5%
+            - button "Pick" [ref=e999] [cursor=pointer]
+        - article [ref=e1000]:
+          - generic [ref=e1001]:
+            - strong [ref=e1002]: Adrien Rabiot
+            - generic [ref=e1003]: MID · FRA
+          - generic [ref=e1004]:
+            - generic [ref=e1005]: $6.4m
+            - generic [ref=e1006]: 0.3%
+            - button "Pick" [ref=e1007] [cursor=pointer]
+        - article [ref=e1008]:
+          - generic [ref=e1009]:
+            - strong [ref=e1010]: Álvaro Fidalgo
+            - generic [ref=e1011]: MID · MEX
+          - generic [ref=e1012]:
+            - generic [ref=e1013]: $6.4m
+            - generic [ref=e1014]: 0.3%
+            - button "Pick" [ref=e1015] [cursor=pointer]
