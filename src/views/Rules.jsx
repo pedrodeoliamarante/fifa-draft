@@ -4,12 +4,12 @@ const ruleSections = [
   {
     title: "League Setup",
     body:
-      "The league has 8 managers, each controlling one team. Player ownership is exclusive — once a player is drafted, no other manager can use that player unless they are traded or released back to the free-agent pool.",
+      "The league has 8 managers, each controlling one team. Player ownership is exclusive. Once a player is drafted, no other manager can use that player unless they are traded or released back to the free-agent pool.",
   },
   {
     title: "Initial Draft",
     body:
-      "Before the tournament starts, managers draft their rosters using a snake draft. The draft order reverses every round: if the first round goes 1 through 8, the next round goes 8 through 1. Each manager drafts 15 players total, including exactly 2 goalkeepers. Only 1 player per country is allowed on each roster. Managers have 1 hour to make each pick. If the timer expires, the system auto-picks the highest-value available player at a position the manager still needs.",
+      "Before the tournament starts, managers draft their rosters using a snake draft. The draft order reverses every round: if the first round goes 1 through 8, the next round goes 8 through 1. This means the last picker in a round picks again first in the next round (back-to-back picks). Each manager drafts 15 players total, including exactly 2 goalkeepers. Only 1 player per country is allowed on each roster. Managers have 1 hour to make each pick. If the timer expires, the system auto-picks the highest-value available player at a position the manager still needs.",
   },
   {
     title: "Weekly Lineups",
@@ -54,7 +54,6 @@ function Rules() {
       <div className="panel-header">
         <div>
           <h2>Rules</h2>
-          <p>How the draft league works from the first pick through the final.</p>
         </div>
       </div>
 
