@@ -8,6 +8,7 @@ import Login from "./views/Login";
 import MyTeam from "./views/MyTeam";
 import PlayerDb from "./views/PlayerDb";
 import Rules from "./views/Rules";
+import Trades from "./views/Trades";
 
 import playersJson from "../data/fifa-fantasy/players.json";
 import squadsJson from "../data/fifa-fantasy/squads.json";
@@ -16,6 +17,7 @@ const menuItems = [
   { id: "my-team", label: "My Team" },
   { id: "league-standings", label: "League Standings" },
   { id: "draft", label: "Draft" },
+  { id: "trades", label: "Trades" },
   { id: "player-db", label: "Player DB" },
   { id: "rules", label: "Rules" },
 ];
@@ -23,6 +25,7 @@ const menuItems = [
 // One-time engine initialization
 const engine = createDraftEngine(playersJson, squadsJson);
 setEngine(engine);
+if (typeof window !== "undefined") window.__engine = engine;
 
 const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
 
@@ -187,6 +190,13 @@ function App() {
     }
   }
 
+  function handleAutoDraft() {
+    for (let i = 0; i < 90; i++) {
+      if (!engine.doAutoPick()) break;
+    }
+    if (session?.token) refreshData(session.token);
+  }
+
   function handleResetDraft() {
     engine.resetDraft();
     if (session?.token) refreshData(session.token);
@@ -296,6 +306,7 @@ function App() {
           onSortChange={setSortBy}
           onPick={handleDraftPick}
           onResetDraft={handleResetDraft}
+          onAutoDraft={handleAutoDraft}
         />
       )}
 
@@ -309,6 +320,31 @@ function App() {
           onSearchChange={setSearch}
           onPositionChange={setPosition}
           onSortChange={setSortBy}
+        />
+      )}
+
+      {activeView === "trades" && (
+        <Trades
+          session={session}
+          trades={engine.getTrades()}
+          managers={engine.managers}
+          rosters={Object.fromEntries(engine.managers.map((m) => [m.id, engine.getMe(m.id).team.players]))}
+          onPropose={(toId, offering, requesting) => {
+            engine.proposeTrade(session.manager.id, toId, offering, requesting);
+            refreshData(session.token);
+          }}
+          onAccept={(tradeId) => {
+            engine.respondToTrade(tradeId, session.manager.id, true);
+            refreshData(session.token);
+          }}
+          onReject={(tradeId) => {
+            engine.respondToTrade(tradeId, session.manager.id, false);
+            refreshData(session.token);
+          }}
+          onCancel={(tradeId) => {
+            engine.cancelTrade(tradeId, session.manager.id);
+            refreshData(session.token);
+          }}
         />
       )}
 

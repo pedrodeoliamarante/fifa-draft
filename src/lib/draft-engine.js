@@ -341,6 +341,105 @@ export function createDraftEngine(allPlayers, squads) {
     return lineup;
   }
 
+  // --- Trades ---
+
+  function getTrades() {
+    const state = loadState();
+    return state.trades || [];
+  }
+
+  function proposeTrade(fromManagerId, toManagerId, offeringPlayerIds, requestingPlayerIds) {
+    if (fromManagerId === toManagerId) throw new Error("Cannot trade with yourself");
+    if (offeringPlayerIds.length === 0 && requestingPlayerIds.length === 0) {
+      throw new Error("Trade must include at least one player");
+    }
+
+    const state = loadState();
+    const fromRoster = getManagerRoster(state, fromManagerId);
+    const toRoster = getManagerRoster(state, toManagerId);
+
+    const fromIds = new Set(fromRoster.map((p) => p.id));
+    const toIds = new Set(toRoster.map((p) => p.id));
+
+    for (const pid of offeringPlayerIds) {
+      if (!fromIds.has(pid)) throw new Error("You don't own one of the offered players");
+    }
+    for (const pid of requestingPlayerIds) {
+      if (!toIds.has(pid)) throw new Error("The other manager doesn't own one of the requested players");
+    }
+
+    const trade = {
+      id: Date.now(),
+      fromManagerId,
+      toManagerId,
+      offeringPlayerIds,
+      requestingPlayerIds,
+      status: "pending",
+      createdAt: Date.now(),
+    };
+
+    if (!state.trades) state.trades = [];
+    state.trades.push(trade);
+    saveState(state);
+    return trade;
+  }
+
+  function respondToTrade(tradeId, managerId, accept) {
+    const state = loadState();
+    const trades = state.trades || [];
+    const trade = trades.find((t) => t.id === tradeId);
+    if (!trade) throw new Error("Trade not found");
+    if (trade.status !== "pending") throw new Error("Trade is no longer pending");
+    if (trade.toManagerId !== managerId) throw new Error("Only the receiving manager can respond");
+
+    if (!accept) {
+      trade.status = "rejected";
+      saveState(state);
+      return trade;
+    }
+
+    // Validate both sides still own the players
+    const fromRoster = getManagerRoster(state, trade.fromManagerId);
+    const toRoster = getManagerRoster(state, trade.toManagerId);
+    const fromIds = new Set(fromRoster.map((p) => p.id));
+    const toIds = new Set(toRoster.map((p) => p.id));
+
+    for (const pid of trade.offeringPlayerIds) {
+      if (!fromIds.has(pid)) throw new Error("Proposer no longer owns an offered player");
+    }
+    for (const pid of trade.requestingPlayerIds) {
+      if (!toIds.has(pid)) throw new Error("You no longer own a requested player");
+    }
+
+    // Execute the swap — move picks ownership
+    for (const p of state.picks) {
+      if (trade.offeringPlayerIds.includes(p.playerId) && p.managerId === trade.fromManagerId) {
+        p.managerId = trade.toManagerId;
+      }
+      if (trade.requestingPlayerIds.includes(p.playerId) && p.managerId === trade.toManagerId) {
+        p.managerId = trade.fromManagerId;
+      }
+    }
+
+    trade.status = "accepted";
+    trade.completedAt = Date.now();
+    saveState(state);
+    return trade;
+  }
+
+  function cancelTrade(tradeId, managerId) {
+    const state = loadState();
+    const trades = state.trades || [];
+    const trade = trades.find((t) => t.id === tradeId);
+    if (!trade) throw new Error("Trade not found");
+    if (trade.status !== "pending") throw new Error("Trade is no longer pending");
+    if (trade.fromManagerId !== managerId) throw new Error("Only the proposer can cancel");
+
+    trade.status = "cancelled";
+    saveState(state);
+    return trade;
+  }
+
   function resetDraft() {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -363,6 +462,10 @@ export function createDraftEngine(allPlayers, squads) {
     setLineup,
     setCaptain,
     toggleStartingXI,
+    getTrades,
+    proposeTrade,
+    respondToTrade,
+    cancelTrade,
     managers,
   };
 }

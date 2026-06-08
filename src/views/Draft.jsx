@@ -25,6 +25,7 @@ function Draft({
   onSortChange,
   onPick,
   onResetDraft,
+  onAutoDraft,
 }) {
   return (
     <section className="draft-grid">
@@ -40,11 +41,18 @@ function Draft({
               </p>
             )}
           </div>
-          {onResetDraft && (
-            <button className="btn-small btn-danger" onClick={onResetDraft} type="button">
-              Reset Draft
-            </button>
-          )}
+          <div className="slot-actions">
+            {onAutoDraft && !draft?.isComplete && (
+              <button className="btn-small btn-start" onClick={onAutoDraft} type="button">
+                Auto-Draft All
+              </button>
+            )}
+            {onResetDraft && (
+              <button className="btn-small btn-danger" onClick={onResetDraft} type="button">
+                Reset Draft
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="draft-turn">
