@@ -43,6 +43,8 @@ function App() {
   const [draftError, setDraftError] = useState("");
   const [pickState, setPickState] = useState("idle");
   const [timeLeft, setTimeLeft] = useState(null);
+  const [lineup, setLineup] = useState({ startingXI: [], captainId: null, formation: "4-3-3" });
+  const [lineupError, setLineupError] = useState("");
   const timerRef = useRef(null);
 
   async function api(path, options = {}, token = session?.token) {
@@ -50,7 +52,8 @@ function App() {
   }
 
   function refreshData(token = session?.token) {
-    const me = engine.getMe(Number(token.replace("local-", "")));
+    const managerId = Number(token.replace("local-", ""));
+    const me = engine.getMe(managerId);
     const playerDb = engine.getPlayers();
     const standings = engine.getStandings();
     const draft = engine.getDraft();
@@ -62,6 +65,7 @@ function App() {
       standings: standings.standings,
       draft,
     });
+    setLineup(engine.getLineup(managerId));
     setLoadState("ready");
   }
 
@@ -188,6 +192,26 @@ function App() {
     if (session?.token) refreshData(session.token);
   }
 
+  function handleToggleXI(playerId) {
+    setLineupError("");
+    try {
+      const updated = engine.toggleStartingXI(session.manager.id, playerId, formation);
+      setLineup(updated);
+    } catch (error) {
+      setLineupError(error.message);
+    }
+  }
+
+  function handleSetCaptain(playerId) {
+    setLineupError("");
+    try {
+      const updated = engine.setCaptain(session.manager.id, playerId);
+      setLineup(updated);
+    } catch (error) {
+      setLineupError(error.message);
+    }
+  }
+
   if (loadState === "login") {
     return (
       <Login
@@ -239,7 +263,18 @@ function App() {
       </nav>
 
       {activeView === "my-team" && (
-        <MyTeam team={data.team} formation={formation} assets={assets} onFormationChange={setFormation} />
+        <>
+          {lineupError && <p className="draft-error">{lineupError}</p>}
+          <MyTeam
+            team={data.team}
+            formation={formation}
+            assets={assets}
+            lineup={lineup}
+            onFormationChange={setFormation}
+            onToggleXI={handleToggleXI}
+            onSetCaptain={handleSetCaptain}
+          />
+        </>
       )}
 
       {activeView === "league-standings" && <LeagueStandings standings={data.standings} />}

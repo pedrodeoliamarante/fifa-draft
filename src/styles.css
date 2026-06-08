@@ -420,6 +420,148 @@ button:focus-visible {
   background: var(--field);
 }
 
+.lineup-slot.filled {
+  border-style: solid;
+  border-color: #3a6ff8;
+  background: #f0f5ff;
+}
+
+.lineup-slot.filled .slot-left strong {
+  color: #101828;
+}
+
+.lineup-slot.captain-slot {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.slot-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-captain {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  background: #fff;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-captain.active {
+  border-color: #f59e0b;
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-remove {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #c03744;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.roster-slot {
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+.roster-slot .slot-left strong {
+  color: #101828;
+}
+
+.roster-slot.in-xi {
+  border-color: #3a6ff8;
+  background: #f0f5ff;
+}
+
+.btn-start,
+.btn-bench {
+  border: 0;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-start {
+  background: #3a6ff8;
+  color: #fff;
+}
+
+.btn-bench {
+  background: #f3f4f6;
+  color: #667085;
+}
+
+.player-price {
+  color: #667085;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.captain-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.formation-slots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.formation-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.formation-badge.complete {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.empty-message {
+  color: #98a2b3;
+  font-size: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
 .standings-list {
   display: grid;
   gap: 0;
