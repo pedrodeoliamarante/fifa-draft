@@ -26,7 +26,7 @@ const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
 
 const initialManagers = [
   { displayName: "Brasil Penta", loginName: "pedro", password: "samba", logo: "/assets/pedro.png",
-    aliases: ["pedro", "brasil", "brasil penta", "brasilpenta", "penta"] },
+    aliases: ["pedro", "brasil", "brasil penta", "brasilpenta", "penta"], isAdmin: true },
   { displayName: "Tesla Team", loginName: "tesla_team", password: "volt", logo: "/assets/tesla.png",
     aliases: ["tesla", "tesla team", "teslateam", "tesla_team"] },
   { displayName: "Monarcas", loginName: "monarcas", password: "crown", logo: "/assets/monarcas.png",
@@ -82,7 +82,8 @@ function setupSchema() {
       display_name TEXT NOT NULL,
       login_name TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
-      logo TEXT
+      logo TEXT,
+      is_admin INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
@@ -200,7 +201,9 @@ function setupSchema() {
     CREATE TABLE IF NOT EXISTS draft_timers (
       league_id INTEGER PRIMARY KEY REFERENCES leagues(id),
       current_pick_started_at TEXT NOT NULL,
-      timer_duration_ms INTEGER NOT NULL DEFAULT 3600000
+      timer_duration_ms INTEGER NOT NULL DEFAULT 3600000,
+      status TEXT NOT NULL DEFAULT 'waiting',
+      paused_remaining_ms INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS trades (
@@ -253,10 +256,10 @@ function setupSchema() {
 
 function seedManagersAndLeague() {
   const insertManager = db.prepare(
-    "INSERT OR IGNORE INTO managers (display_name, login_name, password_hash, logo) VALUES (?, ?, ?, ?)"
+    "INSERT OR IGNORE INTO managers (display_name, login_name, password_hash, logo, is_admin) VALUES (?, ?, ?, ?, ?)"
   );
   for (const m of initialManagers) {
-    insertManager.run(m.displayName, m.loginName, hashPassword(m.password), m.logo);
+    insertManager.run(m.displayName, m.loginName, hashPassword(m.password), m.logo, m.isAdmin ? 1 : 0);
   }
 
   db.prepare("INSERT OR IGNORE INTO leagues (id, name, status) VALUES (1, ?, ?)").run("World Cup Draft", "setup");
@@ -347,7 +350,7 @@ function getSessionManager(req) {
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
   if (!token) return null;
   return db.prepare(`
-    SELECT m.id, m.display_name AS displayName, m.login_name AS loginName, m.logo
+    SELECT m.id, m.display_name AS displayName, m.login_name AS loginName, m.logo, m.is_admin AS isAdmin
     FROM sessions ss JOIN managers m ON m.id = ss.manager_id WHERE ss.token = ?
   `).get(token);
 }
@@ -356,6 +359,11 @@ function requireAuth(req, res, next) {
   const manager = getSessionManager(req);
   if (!manager) return res.status(401).json({ error: "Not logged in" });
   req.manager = manager;
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.manager?.isAdmin) return res.status(403).json({ error: "Admin only" });
   next();
 }
 
@@ -385,7 +393,7 @@ function getTeamId(managerId) {
 
 function getLeagueManagers(leagueId = 1) {
   return db.prepare(`
-    SELECT m.id, m.display_name AS displayName, m.login_name AS loginName, m.logo, lm.draft_position AS draftPosition
+    SELECT m.id, m.display_name AS displayName, m.login_name AS loginName, m.logo, m.is_admin AS isAdmin, lm.draft_position AS draftPosition
     FROM league_managers lm JOIN managers m ON m.id = lm.manager_id
     WHERE lm.league_id = ? ORDER BY lm.draft_position
   `).all(leagueId);
@@ -433,12 +441,14 @@ function getDraftState(leagueId = 1) {
   }
 
   // Timer
-  const timer = db.prepare("SELECT current_pick_started_at AS startedAt FROM draft_timers WHERE league_id = ?").get(leagueId);
+  const timer = db.prepare("SELECT current_pick_started_at AS startedAt, status, paused_remaining_ms AS pausedRemainingMs FROM draft_timers WHERE league_id = ?").get(leagueId);
 
   return {
     managers, picks, totalRounds: TOTAL_ROUNDS, totalPicks, nextPickNumber, isComplete, managerSquads,
     currentPick: current ? { pickNumber: nextPickNumber, roundNumber: current.roundNumber, manager: current.manager } : null,
-    timerStart: timer ? new Date(timer.startedAt).getTime() : null,
+    timerStart: timer && timer.status === "active" ? new Date(timer.startedAt).getTime() : null,
+    draftStatus: timer?.status || "waiting",
+    pausedRemainingMs: timer?.pausedRemainingMs || null,
   };
 }
 
@@ -455,8 +465,8 @@ function executePick(leagueId, pickNumber, roundNumber, managerId, playerId) {
     db.exec("ROLLBACK");
     throw err;
   }
-  // Reset timer for next pick
-  db.prepare("INSERT OR REPLACE INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms) VALUES (?, ?, ?)")
+  // Reset timer for next pick (keep it active if draft is running)
+  db.prepare("INSERT OR REPLACE INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms, status, paused_remaining_ms) VALUES (?, ?, ?, 'active', NULL)")
     .run(leagueId, new Date().toISOString(), PICK_TIMER_MS);
 }
 
@@ -498,8 +508,8 @@ function checkAndRunAutoPick(leagueId = 1) {
   const draft = getDraftState(leagueId);
   if (draft.isComplete) return;
 
-  const timer = db.prepare("SELECT current_pick_started_at AS startedAt, timer_duration_ms AS duration FROM draft_timers WHERE league_id = ?").get(leagueId);
-  if (!timer) return;
+  const timer = db.prepare("SELECT current_pick_started_at AS startedAt, timer_duration_ms AS duration, status FROM draft_timers WHERE league_id = ?").get(leagueId);
+  if (!timer || timer.status !== "active") return;
 
   const elapsed = Date.now() - new Date(timer.startedAt).getTime();
   if (elapsed >= timer.duration) {
@@ -638,10 +648,10 @@ setupSchema();
 seedManagersAndLeague();
 seedFifaData();
 
-// Start draft timer if not already set
-const draftState = getDraftState(1);
-if (!draftState.isComplete && !draftState.timerStart) {
-  db.prepare("INSERT OR REPLACE INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms) VALUES (1, ?, ?)")
+// Initialize draft timer as waiting if not set
+const existingTimer = db.prepare("SELECT league_id FROM draft_timers WHERE league_id = 1").get();
+if (!existingTimer) {
+  db.prepare("INSERT INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms, status) VALUES (1, ?, ?, 'waiting')")
     .run(new Date().toISOString(), PICK_TIMER_MS);
 }
 
@@ -703,7 +713,7 @@ app.post("/api/login", (req, res) => {
 
   res.json({
     token,
-    manager: { id: manager.id, displayName: manager.displayName, loginName: manager.loginName, logo: manager.logo },
+    manager: { id: manager.id, displayName: manager.displayName, loginName: manager.loginName, logo: manager.logo, isAdmin: !!manager.isAdmin },
     league: getLeagueForManager(manager.id),
     team: getTeamForManager(manager.id),
   });
@@ -1112,7 +1122,38 @@ app.get("/api/rounds/:roundId/points/:managerId", requireAuth, (req, res) => {
 // Admin / debug endpoints
 // ---------------------------------------------------------------------------
 
-app.post("/api/admin/complete-matchday", requireAuth, (req, res) => {
+// Start the draft — admin only
+app.post("/api/admin/draft/start", requireAuth, requireAdmin, (req, res) => {
+  db.prepare("UPDATE draft_timers SET status = 'active', current_pick_started_at = ?, paused_remaining_ms = NULL WHERE league_id = 1")
+    .run(new Date().toISOString());
+  res.json({ ok: true, draft: getDraftState(1) });
+});
+
+// Pause the draft timer — admin only
+app.post("/api/admin/draft/pause", requireAuth, requireAdmin, (req, res) => {
+  const timer = db.prepare("SELECT current_pick_started_at AS startedAt, timer_duration_ms AS duration, status FROM draft_timers WHERE league_id = 1").get();
+  if (!timer || timer.status !== "active") return res.status(400).json({ error: "Draft is not active" });
+
+  const elapsed = Date.now() - new Date(timer.startedAt).getTime();
+  const remaining = Math.max(0, timer.duration - elapsed);
+
+  db.prepare("UPDATE draft_timers SET status = 'paused', paused_remaining_ms = ? WHERE league_id = 1").run(remaining);
+  res.json({ ok: true, remainingMs: remaining, draft: getDraftState(1) });
+});
+
+// Resume the draft timer — admin only
+app.post("/api/admin/draft/resume", requireAuth, requireAdmin, (req, res) => {
+  const timer = db.prepare("SELECT paused_remaining_ms AS remaining, status FROM draft_timers WHERE league_id = 1").get();
+  if (!timer || timer.status !== "paused") return res.status(400).json({ error: "Draft is not paused" });
+
+  const remaining = timer.remaining || PICK_TIMER_MS;
+  const newStart = new Date(Date.now() - (PICK_TIMER_MS - remaining)).toISOString();
+
+  db.prepare("UPDATE draft_timers SET status = 'active', current_pick_started_at = ?, paused_remaining_ms = NULL WHERE league_id = 1").run(newStart);
+  res.json({ ok: true, draft: getDraftState(1) });
+});
+
+app.post("/api/admin/complete-matchday", requireAuth, requireAdmin, (req, res) => {
   const { matchday } = req.body || {};
   const md = matchday || 1;
   db.prepare("INSERT OR IGNORE INTO completed_matchdays (league_id, matchday_number, completed_at) VALUES (1, ?, ?)").run(md, new Date().toISOString());
@@ -1120,12 +1161,12 @@ app.post("/api/admin/complete-matchday", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/api/admin/refresh-fa-pool", requireAuth, (req, res) => {
+app.post("/api/admin/refresh-fa-pool", requireAuth, requireAdmin, (req, res) => {
   db.prepare("UPDATE free_agent_state SET pool_seed = ? WHERE league_id = 1").run(Date.now());
   res.json({ ok: true, pool: generateFreeAgentPool(1) });
 });
 
-app.post("/api/admin/reset-draft", requireAuth, (req, res) => {
+app.post("/api/admin/reset-draft", requireAuth, requireAdmin, (req, res) => {
   db.exec("BEGIN");
   try {
     db.exec("DELETE FROM draft_picks WHERE league_id = 1");
@@ -1140,13 +1181,13 @@ app.post("/api/admin/reset-draft", requireAuth, (req, res) => {
     db.exec("ROLLBACK");
     throw err;
   }
-  // Restart timer
-  db.prepare("INSERT OR REPLACE INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms) VALUES (1, ?, ?)")
+  // Reset timer to waiting
+  db.prepare("INSERT OR REPLACE INTO draft_timers (league_id, current_pick_started_at, timer_duration_ms, status, paused_remaining_ms) VALUES (1, ?, ?, 'waiting', NULL)")
     .run(new Date().toISOString(), PICK_TIMER_MS);
   res.json({ ok: true });
 });
 
-app.post("/api/admin/refresh-live-data", requireAuth, async (req, res) => {
+app.post("/api/admin/refresh-live-data", requireAuth, requireAdmin, async (req, res) => {
   const results = { players: "skipped", rounds: "skipped", errors: [] };
   try {
     const playersRes = await fetch("https://play.fifa.com/json/fantasy/players.json");

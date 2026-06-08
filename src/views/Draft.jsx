@@ -26,8 +26,11 @@ function Draft({
   onSortChange,
   onPick,
   onResetDraft,
-  onAutoDraft,
+  onStartDraft,
+  onPauseDraft,
+  onResumeDraft,
 }) {
+  const draftStatus = draft?.draftStatus || "waiting";
   const blockedSquads = new Set(draftedSquads || []);
 
   return (
@@ -45,14 +48,24 @@ function Draft({
             )}
           </div>
           <div className="slot-actions">
-            {onAutoDraft && !draft?.isComplete && (
-              <button className="btn-small btn-start" onClick={onAutoDraft} type="button">
-                Auto-Draft All
+            {onStartDraft && draftStatus === "waiting" && !draft?.isComplete && (
+              <button className="btn-small btn-start" onClick={onStartDraft} type="button">
+                Start Draft
+              </button>
+            )}
+            {onPauseDraft && draftStatus === "active" && !draft?.isComplete && (
+              <button className="btn-small btn-start" onClick={onPauseDraft} type="button">
+                Pause
+              </button>
+            )}
+            {onResumeDraft && draftStatus === "paused" && !draft?.isComplete && (
+              <button className="btn-small btn-start" onClick={onResumeDraft} type="button">
+                Resume
               </button>
             )}
             {onResetDraft && (
               <button className="btn-small btn-danger" onClick={onResetDraft} type="button">
-                Reset Draft
+                Reset
               </button>
             )}
           </div>
@@ -61,6 +74,19 @@ function Draft({
         <div className="draft-turn">
           {draft?.isComplete ? (
             <strong>All rosters are full.</strong>
+          ) : draftStatus === "waiting" ? (
+            <>
+              <span>Draft</span>
+              <strong>Waiting to start</strong>
+            </>
+          ) : draftStatus === "paused" ? (
+            <>
+              <span>Draft Paused</span>
+              <strong>{draft?.currentPick?.manager?.logo && <img className="team-logo" src={draft.currentPick.manager.logo} alt="" />}{draft?.currentPick?.manager?.displayName}</strong>
+              {draft?.pausedRemainingMs != null && (
+                <span className="draft-timer">{formatTime(draft.pausedRemainingMs)}</span>
+              )}
+            </>
           ) : (
             <>
               <span>On the clock</span>
@@ -150,7 +176,7 @@ function Draft({
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">
-                  <button disabled={!isMyTurn || pickState === "picking" || countryBlocked} onClick={() => onPick(player.id)} type="button">
+                  <button disabled={!isMyTurn || pickState === "picking" || countryBlocked || draftStatus !== "active"} onClick={() => onPick(player.id)} type="button">
                     {countryBlocked ? "Taken" : "Pick"}
                   </button>
                 </div>

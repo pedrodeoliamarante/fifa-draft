@@ -395,8 +395,19 @@ function App() {
           onPositionChange={setPosition}
           onSortChange={setSortBy}
           onPick={handleDraftPick}
-          onResetDraft={isDebug ? handleResetDraft : null}
-          onAutoDraft={null}
+          onResetDraft={session?.manager?.isAdmin ? handleResetDraft : null}
+          onStartDraft={session?.manager?.isAdmin ? async () => {
+            await api("/api/admin/draft/start", { method: "POST" });
+            await refreshData(session.token);
+          } : null}
+          onPauseDraft={session?.manager?.isAdmin ? async () => {
+            await api("/api/admin/draft/pause", { method: "POST" });
+            await refreshData(session.token);
+          } : null}
+          onResumeDraft={session?.manager?.isAdmin ? async () => {
+            await api("/api/admin/draft/resume", { method: "POST" });
+            await refreshData(session.token);
+          } : null}
         />
       )}
 
@@ -457,11 +468,11 @@ function App() {
             await loadFreeAgents();
             await refreshData(session.token);
           }}
-          onRefresh={isDebug ? async () => {
+          onRefresh={session?.manager?.isAdmin ? async () => {
             await api("/api/admin/refresh-fa-pool", { method: "POST" });
             await loadFreeAgents();
           } : null}
-          onCompleteMatchday={isDebug ? async (md) => {
+          onCompleteMatchday={session?.manager?.isAdmin ? async (md) => {
             await api("/api/admin/complete-matchday", { method: "POST", body: JSON.stringify({ matchday: md }) });
             await loadFreeAgents();
           } : null}
