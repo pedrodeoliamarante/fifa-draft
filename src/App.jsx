@@ -291,7 +291,7 @@ function App() {
           <h1>{menuItems.find((item) => item.id === activeView)?.label}</h1>
         </div>
         <div className="manager-bar">
-          <span>{session?.manager?.displayName}</span>
+          <span>{session?.manager?.logo && <img className="team-logo" src={session.manager.logo} alt="" />}{session?.manager?.displayName}</span>
           <button onClick={handleLogout} type="button">
             Log Out
           </button>

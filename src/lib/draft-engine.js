@@ -89,6 +89,7 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
     id: i + 1,
     displayName: m.label,
     loginName: m.loginName,
+    logo: m.logo || null,
     draftPosition: i + 1,
   }));
 
@@ -254,7 +255,7 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
       standings: managers.map((m) => {
         const roster = getManagerRoster(state, m.id);
         const totalPoints = roster.reduce((sum, p) => sum + (p.stats?.totalPoints || 0), 0);
-        return { managerId: m.id, displayName: m.displayName, totalPoints, roster };
+        return { managerId: m.id, displayName: m.displayName, logo: m.logo, totalPoints, roster };
       }).sort((a, b) => b.totalPoints - a.totalPoints),
     };
   }

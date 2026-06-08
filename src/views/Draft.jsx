@@ -64,7 +64,7 @@ function Draft({
           ) : (
             <>
               <span>On the clock</span>
-              <strong>{draft?.currentPick?.manager?.displayName}</strong>
+              <strong>{draft?.currentPick?.manager?.logo && <img className="team-logo" src={draft.currentPick.manager.logo} alt="" />}{draft?.currentPick?.manager?.displayName}</strong>
               {timeLeft != null && (
                 <span className="draft-timer">{formatTime(timeLeft)}</span>
               )}
@@ -81,7 +81,7 @@ function Draft({
                 key={manager.id}
               >
                 <span>{manager.draftPosition}</span>
-                <strong>{manager.displayName}</strong>
+                <strong>{manager.logo && <img className="team-logo" src={manager.logo} alt="" />}{manager.displayName}</strong>
                 <span className="manager-flags">
                   {squads.map((squadId) => {
                     const flag = assets.flags?.[squadId]?.path;

@@ -82,7 +82,7 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
                 onKeyDown={(e) => e.key === "Enter" && toggleManager(row.managerId)}
               >
                 <span>{index + 1}</span>
-                <strong>{row.displayName}</strong>
+                <strong>{row.logo && <img className="team-logo" src={row.logo} alt="" />}{row.displayName}</strong>
                 <div className="standing-points">
                   {roundPts !== null && (
                     <span className="standing-round-pts">+{roundPts.total}</span>

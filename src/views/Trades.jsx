@@ -39,7 +39,9 @@ function Trades({ session, trades, managers, rosters, onPropose, onAccept, onRej
   }
 
   function managerName(id) {
-    return managers.find((m) => m.id === id)?.displayName || "Unknown";
+    const m = managers.find((mg) => mg.id === id);
+    if (!m) return "Unknown";
+    return <>{m.logo && <img className="team-logo" src={m.logo} alt="" />}{m.displayName}</>;
   }
 
   function playerLabel(playerId, allRosters) {

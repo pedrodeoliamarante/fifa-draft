@@ -359,6 +359,16 @@ button:focus-visible {
   box-shadow: 0 0 0 1px var(--ink);
 }
 
+.team-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: -5px;
+  margin-right: 6px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
 .team-grid,
 .draft-grid {
   display: grid;

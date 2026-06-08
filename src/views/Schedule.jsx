@@ -169,7 +169,7 @@ function Schedule({ engine, session, assets, onRefresh, liveStatus }) {
 
               return (
                 <div className={`lineup-status-row${isMe ? " lineup-status-me" : ""}`} key={m.id}>
-                  <strong>{m.displayName}</strong>
+                  <strong>{m.logo && <img className="team-logo" src={m.logo} alt="" />}{m.displayName}</strong>
                   <span className={`lineup-status-badge${isReady ? " badge-ready" : " badge-pending"}`}>
                     {locked
                       ? (lockedLineup ? `Locked (${xiCount}/11)` : "Not set")

@@ -30,7 +30,7 @@ function Login({ loginState, onLoginChange, onSubmit, onQuickLogin }) {
           <div className="quick-logins">
             {seededManagers.map((manager) => (
               <button key={manager.loginName} onClick={() => onQuickLogin(manager.loginName)} type="button">
-                {manager.label}
+                {manager.logo && <img className="team-logo" src={manager.logo} alt="" />} {manager.label}
               </button>
             ))}
           </div>
