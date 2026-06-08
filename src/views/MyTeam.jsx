@@ -1,7 +1,7 @@
 import React from "react";
 import { formationSlots, playerName, rosterSlots } from "../lib/fantasy";
 
-function MyTeam({ team, formation, onFormationChange }) {
+function MyTeam({ team, formation, assets, onFormationChange }) {
   return (
     <section className="team-grid">
       <div className="panel team-panel">
@@ -18,7 +18,7 @@ function MyTeam({ team, formation, onFormationChange }) {
             return (
               <div className="slot" key={`${slot}-${index}`}>
                 <span>{rosterPlayer?.position || ""}</span>
-                <strong>{rosterPlayer ? playerName(rosterPlayer) : "Empty"}</strong>
+                <strong>{rosterPlayer ? <><Flag player={rosterPlayer} assets={assets} /> {playerName(rosterPlayer)}</> : "Empty"}</strong>
               </div>
             );
           })}
@@ -53,6 +53,12 @@ function MyTeam({ team, formation, onFormationChange }) {
       </div>
     </section>
   );
+}
+
+function Flag({ player, assets }) {
+  const flag = assets.flags?.[player.squadId]?.path;
+  if (!flag) return null;
+  return <img className="flag-icon" src={flag} alt="" />;
 }
 
 export default MyTeam;

@@ -4,6 +4,7 @@ import { playerName, positions, sortOptions } from "../lib/fantasy";
 function Draft({
   draft,
   players,
+  assets,
   session,
   search,
   position,
@@ -25,7 +26,7 @@ function Draft({
               <p>Draft complete</p>
             ) : (
               <p>
-                Pick {draft?.currentPick?.pickNumber} Â· Round {draft?.currentPick?.roundNumber}
+                Pick {draft?.currentPick?.pickNumber} · Round {draft?.currentPick?.roundNumber}
               </p>
             )}
           </div>
@@ -92,7 +93,7 @@ function Draft({
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
-                    {player.position} Â· {player.teamAbbr || "TBD"}
+                    {player.position} · <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">
@@ -109,6 +110,12 @@ function Draft({
       </div>
     </section>
   );
+}
+
+function Flag({ player, assets }) {
+  const flag = assets.flags?.[player.squadId]?.path;
+  if (!flag) return null;
+  return <img className="flag-icon" src={flag} alt="" />;
 }
 
 export default Draft;
