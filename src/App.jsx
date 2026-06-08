@@ -6,12 +6,14 @@ import LeagueStandings from "./views/LeagueStandings";
 import Login from "./views/Login";
 import MyTeam from "./views/MyTeam";
 import PlayerDb from "./views/PlayerDb";
+import Rules from "./views/Rules";
 
 const menuItems = [
   { id: "my-team", label: "My Team" },
   { id: "league-standings", label: "League Standings" },
   { id: "draft", label: "Draft" },
   { id: "player-db", label: "Player DB" },
+  { id: "rules", label: "Rules" },
 ];
 
 function App() {
@@ -242,6 +244,8 @@ function App() {
           onSortChange={setSortBy}
         />
       )}
+
+      {activeView === "rules" && <Rules />}
     </main>
   );
 }
