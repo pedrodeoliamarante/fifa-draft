@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { formationSlots, playerName } from "../lib/fantasy";
 
-function LeagueStandings({ standings, assets }) {
+function LeagueStandings({ standings, assets, engine, currentMatchday }) {
   const [expandedManager, setExpandedManager] = useState(null);
   const defaultFormation = "4-3-3";
+
+  const activeRoundId = currentMatchday?.id || null;
+  const roundLocked = activeRoundId ? engine.isRoundLocked(activeRoundId) : false;
 
   function toggleManager(managerId) {
     setExpandedManager((current) => (current === managerId ? null : managerId));
@@ -19,7 +22,6 @@ function LeagueStandings({ standings, assets }) {
     const starting = [];
     const used = new Set();
 
-    // Fill each position slot from the roster
     for (const pos of Object.keys(positionNeeds)) {
       const need = positionNeeds[pos];
       const candidates = roster.filter((p) => p.position === pos && !used.has(p.id));
@@ -37,10 +39,38 @@ function LeagueStandings({ standings, assets }) {
   return (
     <section className="panel empty-view">
       <h2>League Standings</h2>
+
+      {/* Live round points banner */}
+      {activeRoundId && roundLocked && (
+        <div className="live-round-banner">
+          <span className="live-dot" />
+          <strong>Matchday {activeRoundId} — Live Points</strong>
+        </div>
+      )}
+
       <div className="standings-list">
         {standings.map((row, index) => {
           const isExpanded = expandedManager === row.managerId;
-          const { starting, bench } = isExpanded ? buildLineup(row.roster || []) : { starting: [], bench: [] };
+
+          // Get locked lineup points if round is active
+          const roundPts = activeRoundId && roundLocked
+            ? engine.getRoundPoints(row.managerId, activeRoundId)
+            : null;
+
+          // Build the display lineup — prefer locked lineup for active round
+          let displayStarting = [];
+          let displayBench = [];
+          if (isExpanded) {
+            if (roundPts && roundPts.players.length > 0) {
+              displayStarting = roundPts.players;
+              const startingIds = new Set(displayStarting.map((p) => p.id));
+              displayBench = (row.roster || []).filter((p) => !startingIds.has(p.id));
+            } else {
+              const lineup = buildLineup(row.roster || []);
+              displayStarting = lineup.starting;
+              displayBench = lineup.bench;
+            }
+          }
 
           return (
             <div key={row.managerId}>
@@ -53,7 +83,12 @@ function LeagueStandings({ standings, assets }) {
               >
                 <span>{index + 1}</span>
                 <strong>{row.displayName}</strong>
-                <span>{row.totalPoints} pts</span>
+                <div className="standing-points">
+                  {roundPts !== null && (
+                    <span className="standing-round-pts">+{roundPts.total}</span>
+                  )}
+                  <span>{row.totalPoints} pts</span>
+                </div>
               </div>
 
               {isExpanded && (
@@ -63,26 +98,39 @@ function LeagueStandings({ standings, assets }) {
                   ) : (
                     <>
                       <div className="standing-roster-section">
-                        <h3>Starting XI <span>{defaultFormation}</span></h3>
+                        <h3>
+                          Starting XI
+                          {roundPts ? (
+                            <span>MD {activeRoundId} — {roundPts.total} pts</span>
+                          ) : (
+                            <span>{defaultFormation}</span>
+                          )}
+                        </h3>
                         <div className="standing-roster-list">
-                          {starting.map((player) => (
+                          {displayStarting.map((player) => (
                             <div className="standing-player" key={player.id}>
                               <span className="standing-player-pos">{player.position}</span>
                               <strong>
                                 <Flag player={player} assets={assets} />
                                 {playerName(player)}
+                                {player.isCaptain && <span className="captain-badge">C</span>}
                               </strong>
-                              <span className="standing-player-pts">{player.stats?.totalPoints || 0} pts</span>
+                              <span className="standing-player-pts">
+                                {player.effectivePoints != null
+                                  ? `${player.effectivePoints} pts`
+                                  : `${player.stats?.totalPoints || 0} pts`
+                                }
+                              </span>
                             </div>
                           ))}
-                          {starting.length === 0 && <p className="standing-roster-empty">Not enough players</p>}
+                          {displayStarting.length === 0 && <p className="standing-roster-empty">Not enough players</p>}
                         </div>
                       </div>
 
                       <div className="standing-roster-section">
                         <h3>Bench</h3>
                         <div className="standing-roster-list">
-                          {bench.map((player) => (
+                          {displayBench.map((player) => (
                             <div className="standing-player standing-player-bench" key={player.id}>
                               <span className="standing-player-pos">{player.position}</span>
                               <strong>
@@ -92,7 +140,7 @@ function LeagueStandings({ standings, assets }) {
                               <span className="standing-player-pts">{player.stats?.totalPoints || 0} pts</span>
                             </div>
                           ))}
-                          {bench.length === 0 && <p className="standing-roster-empty">No bench players</p>}
+                          {displayBench.length === 0 && <p className="standing-roster-empty">No bench players</p>}
                         </div>
                       </div>
                     </>

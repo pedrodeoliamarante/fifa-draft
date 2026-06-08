@@ -4,6 +4,8 @@ const STORAGE_KEY = "fifaDraftState";
 const TOTAL_ROUNDS = 15;
 const MAX_GK = 2;
 const MAX_ROSTER = 15;
+const FIFA_PLAYERS_URL = "https://play.fifa.com/json/fantasy/players.json";
+const FIFA_ROUNDS_URL = "https://play.fifa.com/json/fantasy/rounds.json";
 
 // --- Roster constraint helpers ---
 
@@ -55,22 +57,27 @@ function getPickManager(managers, pickNumber) {
 
 // --- Draft Engine ---
 
-export function createDraftEngine(allPlayers, squads) {
+export function createDraftEngine(allPlayers, squads, rounds = []) {
   const squadsById = Object.fromEntries(squads.map((s) => [s.id, s]));
 
-  // Enrich players with squad info (mirrors server SQL join)
-  const enrichedPlayers = allPlayers
-    .filter((p) => p.status === "playing")
-    .map((p) => {
-      const squad = squadsById[p.squadId] || {};
-      return {
-        ...p,
-        name: p.knownName || [p.firstName, p.lastName].filter(Boolean).join(" "),
-        team: squad.name || "",
-        teamAbbr: squad.abbr || "",
-        groupName: squad.group || "",
-      };
-    });
+  function enrichPlayerList(playerList) {
+    return playerList
+      .filter((p) => p.status === "playing")
+      .map((p) => {
+        const squad = squadsById[p.squadId] || {};
+        return {
+          ...p,
+          name: p.knownName || [p.firstName, p.lastName].filter(Boolean).join(" "),
+          team: squad.name || "",
+          teamAbbr: squad.abbr || "",
+          groupName: squad.group || "",
+        };
+      });
+  }
+
+  // Mutable — gets replaced on live data refresh
+  let enrichedPlayers = enrichPlayerList(allPlayers);
+  let matchdayRounds = [...rounds];
 
   const managers = seededManagers.map((m, i) => ({
     id: i + 1,
@@ -440,6 +447,143 @@ export function createDraftEngine(allPlayers, squads) {
     return trade;
   }
 
+  // --- Matchday / Schedule ---
+
+  function getRounds() {
+    return matchdayRounds;
+  }
+
+  function getMatchday(roundId) {
+    const round = matchdayRounds.find((r) => r.id === roundId);
+    if (!round) return null;
+    const fixtures = (round.tournaments || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const firstKickoff = fixtures.length > 0 ? new Date(fixtures[0].date).getTime() : null;
+    return { ...round, fixtures, firstKickoff };
+  }
+
+  function getCurrentMatchday() {
+    const now = Date.now();
+    // Find the round whose first kickoff is soonest in the future, or the most recent active one
+    let upcoming = null;
+    let active = null;
+
+    for (const round of matchdayRounds) {
+      const fixtures = (round.tournaments || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (fixtures.length === 0) continue;
+      const firstKickoff = new Date(fixtures[0].date).getTime();
+      const lastKickoff = new Date(fixtures[fixtures.length - 1].date).getTime();
+
+      if (now < firstKickoff) {
+        // Future round — pick the nearest one
+        if (!upcoming || firstKickoff < new Date(upcoming.fixtures[0].date).getTime()) {
+          upcoming = { ...round, fixtures, firstKickoff };
+        }
+      } else if (now <= lastKickoff + 3 * 60 * 60 * 1000) {
+        // Active round (within ~3h of last fixture start)
+        active = { ...round, fixtures, firstKickoff };
+      }
+    }
+
+    return active || upcoming || null;
+  }
+
+  // --- XI Lock ---
+
+  function isRoundLocked(roundId) {
+    const md = getMatchday(roundId);
+    if (!md || !md.firstKickoff) return false;
+    return Date.now() >= md.firstKickoff;
+  }
+
+  function getLockTimeLeft(roundId) {
+    const md = getMatchday(roundId);
+    if (!md || !md.firstKickoff) return null;
+    const remaining = md.firstKickoff - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }
+
+  function lockLineup(managerId, roundId) {
+    const state = loadState();
+    const key = `lockedLineup_${managerId}_r${roundId}`;
+    if (state[key]) return state[key]; // Already locked
+
+    const lineupKey = `lineup_${managerId}`;
+    const currentLineup = state[lineupKey] || { startingXI: [], captainId: null, formation: "4-3-3" };
+    state[key] = { ...currentLineup, lockedAt: Date.now() };
+    saveState(state);
+    return state[key];
+  }
+
+  function getLockedLineup(managerId, roundId) {
+    const state = loadState();
+    const key = `lockedLineup_${managerId}_r${roundId}`;
+    return state[key] || null;
+  }
+
+  function autoLockAllLineups(roundId) {
+    if (!isRoundLocked(roundId)) return;
+    for (const m of managers) {
+      lockLineup(m.id, roundId);
+    }
+  }
+
+  // --- Points calculation per round ---
+
+  function getRoundPoints(managerId, roundId) {
+    const locked = getLockedLineup(managerId, roundId);
+    if (!locked) return { startingXI: 0, total: 0, players: [] };
+
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    const rosterById = Object.fromEntries(roster.map((p) => [p.id, p]));
+
+    let total = 0;
+    const players = locked.startingXI.map((pid) => {
+      const player = rosterById[pid];
+      if (!player) return null;
+      const roundPts = player.stats?.roundPoints?.[roundId - 1] || 0;
+      const isCaptain = locked.captainId === pid;
+      const pts = isCaptain ? roundPts * 2 : roundPts;
+      total += pts;
+      return { ...player, roundPoints: roundPts, effectivePoints: pts, isCaptain };
+    }).filter(Boolean);
+
+    return { total, players };
+  }
+
+  // --- Live data refresh ---
+
+  async function refreshLiveData() {
+    const results = { players: false, rounds: false, errors: [] };
+
+    try {
+      const res = await fetch(FIFA_PLAYERS_URL);
+      if (res.ok) {
+        const freshPlayers = await res.json();
+        enrichedPlayers = enrichPlayerList(freshPlayers);
+        results.players = true;
+      } else {
+        results.errors.push(`Players fetch failed: ${res.status}`);
+      }
+    } catch (err) {
+      results.errors.push(`Players fetch error: ${err.message}`);
+    }
+
+    try {
+      const res = await fetch(FIFA_ROUNDS_URL);
+      if (res.ok) {
+        matchdayRounds = await res.json();
+        results.rounds = true;
+      } else {
+        results.errors.push(`Rounds fetch failed: ${res.status}`);
+      }
+    } catch (err) {
+      results.errors.push(`Rounds fetch error: ${err.message}`);
+    }
+
+    return results;
+  }
+
   function resetDraft() {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -466,6 +610,16 @@ export function createDraftEngine(allPlayers, squads) {
     proposeTrade,
     respondToTrade,
     cancelTrade,
+    getRounds,
+    getMatchday,
+    getCurrentMatchday,
+    isRoundLocked,
+    getLockTimeLeft,
+    lockLineup,
+    getLockedLineup,
+    autoLockAllLineups,
+    getRoundPoints,
+    refreshLiveData,
     managers,
   };
 }

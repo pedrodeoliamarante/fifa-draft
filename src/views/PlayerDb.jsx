@@ -39,9 +39,8 @@ function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, o
               </span>
             </div>
             <div className="player-meta">
-              <span>${player.price}m</span>
-              <span>{player.percentSelected}%</span>
-              <span>{player.nextFixture || "No fixture"}</span>
+              <span>{player.stats?.totalPoints || 0} pts</span>
+              <span>{player.nextFixture || "—"}</span>
             </div>
           </article>
         ))}

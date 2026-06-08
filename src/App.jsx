@@ -10,12 +10,16 @@ import PlayerDb from "./views/PlayerDb";
 import Rules from "./views/Rules";
 import Trades from "./views/Trades";
 
+import Schedule from "./views/Schedule";
+
 import playersJson from "../data/fifa-fantasy/players.json";
 import squadsJson from "../data/fifa-fantasy/squads.json";
+import roundsJson from "../data/fifa-fantasy/rounds.json";
 
 const menuItems = [
   { id: "my-team", label: "My Team" },
   { id: "league-standings", label: "League Standings" },
+  { id: "schedule", label: "Schedule" },
   { id: "draft", label: "Draft" },
   { id: "trades", label: "Trades" },
   { id: "player-db", label: "Player DB" },
@@ -23,7 +27,7 @@ const menuItems = [
 ];
 
 // One-time engine initialization
-const engine = createDraftEngine(playersJson, squadsJson);
+const engine = createDraftEngine(playersJson, squadsJson, roundsJson);
 setEngine(engine);
 if (typeof window !== "undefined") window.__engine = engine;
 
@@ -41,14 +45,16 @@ function App() {
   const [activeView, setActiveView] = useState("draft");
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("ALL");
-  const [sortBy, setSortBy] = useState("price");
+  const [sortBy, setSortBy] = useState("points");
   const [formation, setFormation] = useState("4-3-3");
   const [draftError, setDraftError] = useState("");
   const [pickState, setPickState] = useState("idle");
   const [timeLeft, setTimeLeft] = useState(null);
   const [lineup, setLineup] = useState({ startingXI: [], captainId: null, formation: "4-3-3" });
   const [lineupError, setLineupError] = useState("");
+  const [liveStatus, setLiveStatus] = useState(null);
   const timerRef = useRef(null);
+  const refreshRef = useRef(null);
 
   async function api(path, options = {}, token = session?.token) {
     return apiRequest(path, { ...options, token });
@@ -122,6 +128,28 @@ function App() {
     return () => clearInterval(timerRef.current);
   }, [data.draft?.currentPick?.pickNumber, data.draft?.isComplete]);
 
+  // Live data refresh — every 5 minutes, auto-lock lineups on kickoff
+  useEffect(() => {
+    if (refreshRef.current) clearInterval(refreshRef.current);
+    if (loadState !== "ready") return;
+
+    async function doRefresh() {
+      const result = await engine.refreshLiveData();
+      setLiveStatus(result);
+
+      // Auto-lock lineups if current matchday has kicked off
+      const md = engine.getCurrentMatchday();
+      if (md && engine.isRoundLocked(md.id)) {
+        engine.autoLockAllLineups(md.id);
+      }
+
+      if (session?.token) refreshData(session.token);
+    }
+
+    refreshRef.current = setInterval(doRefresh, 5 * 60 * 1000);
+    return () => clearInterval(refreshRef.current);
+  }, [loadState]);
+
   const availablePlayers = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -133,8 +161,8 @@ function App() {
       })
       .sort((a, b) => {
         if (sortBy === "name") return playerName(a).localeCompare(playerName(b));
-        if (sortBy === "selected") return b.percentSelected - a.percentSelected;
-        return b.price - a.price;
+        if (sortBy === "price") return b.price - a.price;
+        return (b.stats?.totalPoints || 0) - (a.stats?.totalPoints || 0);
       });
   }, [data.players, position, search, sortBy]);
 
@@ -294,7 +322,33 @@ function App() {
         </>
       )}
 
-      {activeView === "league-standings" && <LeagueStandings standings={data.standings} assets={assets} />}
+      {activeView === "league-standings" && (
+        <LeagueStandings
+          standings={data.standings}
+          assets={assets}
+          engine={engine}
+          currentMatchday={engine.getCurrentMatchday()}
+        />
+      )}
+
+      {activeView === "schedule" && (
+        <Schedule
+          engine={engine}
+          session={session}
+          assets={assets}
+          onRefresh={async () => {
+            const result = await engine.refreshLiveData();
+            setLiveStatus(result);
+            const md = engine.getCurrentMatchday();
+            if (md && engine.isRoundLocked(md.id)) {
+              engine.autoLockAllLineups(md.id);
+            }
+            if (session?.token) refreshData(session.token);
+            return result;
+          }}
+          liveStatus={liveStatus}
+        />
+      )}
 
       {activeView === "draft" && (
         <Draft
