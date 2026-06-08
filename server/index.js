@@ -25,14 +25,22 @@ const MAX_GK = 2;
 const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
 
 const initialManagers = [
-  { displayName: "Brasil Penta", loginName: "pedro", password: "demo", logo: "/assets/pedro.png" },
-  { displayName: "Tesla Team", loginName: "tesla_team", password: "demo", logo: "/assets/tesla.png" },
-  { displayName: "Monarcas", loginName: "monarcas", password: "demo", logo: "/assets/monarcas.png" },
-  { displayName: "Aidan", loginName: "aidan", password: "demo", logo: "/assets/aidan.png" },
-  { displayName: "Sam Bruh Scores", loginName: "sam", password: "demo", logo: "/assets/sam.png" },
-  { displayName: "Evelyn Stars", loginName: "evelyn", password: "demo", logo: "/assets/evelyn.png" },
-  { displayName: "Hang He Chan Love", loginName: "hang_he_chan_love", password: "demo", logo: "/assets/kellen.png" },
-  { displayName: "Croat Goats", loginName: "croat_goats", password: "demo", logo: "/assets/croats.png" },
+  { displayName: "Brasil Penta", loginName: "pedro", password: "samba", logo: "/assets/pedro.png",
+    aliases: ["pedro", "brasil", "brasil penta", "brasilpenta", "penta"] },
+  { displayName: "Tesla Team", loginName: "tesla_team", password: "volt", logo: "/assets/tesla.png",
+    aliases: ["tesla", "tesla team", "teslateam", "tesla_team"] },
+  { displayName: "Monarcas", loginName: "monarcas", password: "crown", logo: "/assets/monarcas.png",
+    aliases: ["monarcas", "monarca"] },
+  { displayName: "Aidan", loginName: "aidan", password: "goal", logo: "/assets/aidan.png",
+    aliases: ["aidan"] },
+  { displayName: "Sam Bruh Scores", loginName: "sam", password: "bruh", logo: "/assets/sam.png",
+    aliases: ["sam", "sam bruh", "sam bruh scores", "sambruh"] },
+  { displayName: "Evelyn Stars", loginName: "evelyn", password: "star", logo: "/assets/evelyn.png",
+    aliases: ["evelyn", "evelyn stars", "evelynstars", "stars"] },
+  { displayName: "Hang He Chan Love", loginName: "hang_he_chan_love", password: "love", logo: "/assets/kellen.png",
+    aliases: ["hang", "kellen", "hang he chan love", "hanghechan", "hang_he_chan_love", "chanl ove"] },
+  { displayName: "Croat Goats", loginName: "croat_goats", password: "goat", logo: "/assets/croats.png",
+    aliases: ["croat", "croats", "croat goats", "croatgoats", "croat_goats", "goats"] },
 ];
 
 const formationSlots = {
@@ -673,13 +681,21 @@ app.use(express.json());
 
 app.post("/api/login", (req, res) => {
   const { loginName, password } = req.body || {};
+  const input = (loginName || "").trim().toLowerCase().replace(/[_\s]+/g, " ");
+
+  // Find manager by alias match
+  const matchedConfig = initialManagers.find((m) =>
+    m.aliases.some((a) => a.toLowerCase() === input) || m.loginName === input
+  );
+  if (!matchedConfig) return res.status(401).json({ error: "Unknown team name" });
+
   const manager = db.prepare(`
     SELECT id, display_name AS displayName, login_name AS loginName, password_hash AS passwordHash, logo
     FROM managers WHERE login_name = ?
-  `).get(loginName || "");
+  `).get(matchedConfig.loginName);
 
   if (!manager || manager.passwordHash !== hashPassword(password || "")) {
-    return res.status(401).json({ error: "Invalid login" });
+    return res.status(401).json({ error: "Wrong password" });
   }
 
   const token = crypto.randomBytes(32).toString("hex");
