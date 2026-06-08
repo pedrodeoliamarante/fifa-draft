@@ -36,9 +36,11 @@ export const formationSlots = {
 
 export const seededManagers = [
   { loginName: "pedro", label: "Pedro" },
-  { loginName: "manager2", label: "Manager 2" },
-  { loginName: "manager3", label: "Manager 3" },
-  { loginName: "manager4", label: "Manager 4" },
+  { loginName: "tesla_team", label: "Tesla Team" },
+  { loginName: "monarcas", label: "Monarcas" },
+  { loginName: "aidan", label: "Aidan" },
+  { loginName: "sam", label: "Sam" },
+  { loginName: "hang_he_chan_love", label: "Hang He Chan Love" },
 ];
 
 export function playerName(player) {

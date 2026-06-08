@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { apiRequest } from "./lib/api";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { setEngine, getEngine, apiRequest } from "./lib/api";
+import { createDraftEngine } from "./lib/draft-engine";
 import { playerName } from "./lib/fantasy";
 import Draft from "./views/Draft";
 import LeagueStandings from "./views/LeagueStandings";
@@ -8,6 +9,9 @@ import MyTeam from "./views/MyTeam";
 import PlayerDb from "./views/PlayerDb";
 import Rules from "./views/Rules";
 
+import playersJson from "../data/fifa-fantasy/players.json";
+import squadsJson from "../data/fifa-fantasy/squads.json";
+
 const menuItems = [
   { id: "my-team", label: "My Team" },
   { id: "league-standings", label: "League Standings" },
@@ -15,6 +19,12 @@ const menuItems = [
   { id: "player-db", label: "Player DB" },
   { id: "rules", label: "Rules" },
 ];
+
+// One-time engine initialization
+const engine = createDraftEngine(playersJson, squadsJson);
+setEngine(engine);
+
+const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
 
 function App() {
   const [session, setSession] = useState(() => {
@@ -25,25 +35,25 @@ function App() {
   const [assets, setAssets] = useState({ flags: {}, players: {} });
   const [loadState, setLoadState] = useState(session ? "loading" : "login");
   const [loginState, setLoginState] = useState({ loginName: "pedro", password: "demo", error: "" });
-  const [activeView, setActiveView] = useState("my-team");
+  const [activeView, setActiveView] = useState("draft");
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("ALL");
   const [sortBy, setSortBy] = useState("price");
   const [formation, setFormation] = useState("4-3-3");
   const [draftError, setDraftError] = useState("");
   const [pickState, setPickState] = useState("idle");
+  const [timeLeft, setTimeLeft] = useState(null);
+  const timerRef = useRef(null);
 
   async function api(path, options = {}, token = session?.token) {
     return apiRequest(path, { ...options, token });
   }
 
-  async function loadAppData(token = session?.token) {
-    const [me, playerDb, standings, draft] = await Promise.all([
-      api("/api/me", {}, token),
-      api("/api/players", {}, token),
-      api("/api/standings", {}, token),
-      api("/api/draft", {}, token),
-    ]);
+  function refreshData(token = session?.token) {
+    const me = engine.getMe(Number(token.replace("local-", "")));
+    const playerDb = engine.getPlayers();
+    const standings = engine.getStandings();
+    const draft = engine.getDraft();
 
     setSession((current) => ({ ...current, token, manager: me.manager, league: me.league }));
     setData({
@@ -55,6 +65,7 @@ function App() {
     setLoadState("ready");
   }
 
+  // Load player photo/flag assets
   useEffect(() => {
     fetch("/assets/player-assets.json")
       .then((response) => (response.ok ? response.json() : { flags: {}, players: {} }))
@@ -62,30 +73,47 @@ function App() {
       .catch(() => setAssets({ flags: {}, players: {} }));
   }, []);
 
+  // On mount, if we have a token, load data immediately
   useEffect(() => {
     if (!session?.token) return;
+    try {
+      refreshData(session.token);
+    } catch {
+      localStorage.removeItem("draftToken");
+      setSession(null);
+      setLoadState("login");
+    }
+  }, [session?.token]);
 
-    let isMounted = true;
+  // Draft timer — counts down from 1 hour, auto-picks on expiry
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
 
-    async function loadData() {
-      try {
-        await loadAppData(session.token);
-      } catch (error) {
-        if (isMounted) {
-          localStorage.removeItem("draftToken");
-          setSession(null);
-          setLoginState((current) => ({ ...current, error: error.message || "Session expired." }));
-          setLoadState("login");
-        }
+    const draft = data.draft;
+    if (!draft || draft.isComplete) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const timerStart = draft.timerStart || Date.now();
+
+    function tick() {
+      const elapsed = Date.now() - timerStart;
+      const remaining = PICK_TIMER_MS - elapsed;
+      if (remaining <= 0) {
+        clearInterval(timerRef.current);
+        // Auto-pick
+        engine.doAutoPick();
+        if (session?.token) refreshData(session.token);
+      } else {
+        setTimeLeft(remaining);
       }
     }
 
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [session?.token]);
+    tick();
+    timerRef.current = setInterval(tick, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [data.draft?.currentPick?.pickNumber, data.draft?.isComplete]);
 
   const availablePlayers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -107,15 +135,11 @@ function App() {
     setLoginState((current) => ({ ...current, ...next }));
   }
 
-  async function loginWith(loginName, password) {
+  async function loginWith(loginName) {
     setLoginState((current) => ({ ...current, error: "" }));
 
     try {
-      const body = await apiRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ loginName, password }),
-      });
-
+      const body = engine.login(loginName);
       localStorage.setItem("draftToken", body.token);
       setSession({ token: body.token, manager: body.manager, league: body.league });
       setData((current) => ({ ...current, team: body.team }));
@@ -127,39 +151,30 @@ function App() {
 
   async function handleLogin(event) {
     event.preventDefault();
-    await loginWith(loginState.loginName, loginState.password);
+    await loginWith(loginState.loginName);
   }
 
-  async function handleLogout() {
-    if (session?.token) {
-      await fetch("/api/logout", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.token}` },
-      }).catch(() => {});
-    }
-
+  function handleLogout() {
     localStorage.removeItem("draftToken");
     setSession(null);
     setData({ players: [], team: null, standings: [], draft: null });
     setLoadState("login");
   }
 
-  async function handleDraftPick(playerId) {
+  function handleDraftPick(playerId) {
     setDraftError("");
     setPickState("picking");
 
     try {
-      const result = await api("/api/draft/pick", {
-        method: "POST",
-        body: JSON.stringify({ playerId }),
-      });
-      const [playerDb, standings] = await Promise.all([api("/api/players"), api("/api/standings")]);
+      const result = engine.pick(session.manager.id, playerId);
+      const playerDb = engine.getPlayers();
+      const standings = engine.getStandings();
       setData((current) => ({
         ...current,
         players: playerDb.players,
         standings: standings.standings,
         draft: result.draft,
-        team: result.team,
+        team: { ...current.team, players: result.team },
       }));
     } catch (error) {
       setDraftError(error.message || "Could not make pick");
@@ -168,13 +183,18 @@ function App() {
     }
   }
 
+  function handleResetDraft() {
+    engine.resetDraft();
+    if (session?.token) refreshData(session.token);
+  }
+
   if (loadState === "login") {
     return (
       <Login
         loginState={loginState}
         onLoginChange={updateLoginState}
         onSubmit={handleLogin}
-        onQuickLogin={(loginName) => loginWith(loginName, "demo")}
+        onQuickLogin={(loginName) => loginWith(loginName)}
       />
     );
   }
@@ -235,10 +255,12 @@ function App() {
           sortBy={sortBy}
           draftError={draftError}
           pickState={pickState}
+          timeLeft={timeLeft}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
           onSortChange={setSortBy}
           onPick={handleDraftPick}
+          onResetDraft={handleResetDraft}
         />
       )}
 
