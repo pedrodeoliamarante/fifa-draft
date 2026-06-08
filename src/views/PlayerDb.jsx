@@ -1,7 +1,7 @@
 import React from "react";
 import { playerName, positions, sortOptions } from "../lib/fantasy";
 
-function PlayerDb({ players, search, position, sortBy, onSearchChange, onPositionChange, onSortChange }) {
+function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, onPositionChange, onSortChange }) {
   return (
     <section className="panel player-panel">
       <div className="panel-header">
@@ -33,10 +33,15 @@ function PlayerDb({ players, search, position, sortBy, onSearchChange, onPositio
         {players.slice(0, 120).map((player) => (
           <article className="player-row" key={player.id}>
             <div className="player-main">
-              <strong>{playerName(player)}</strong>
-              <span>
-                {player.position} Â· {player.teamAbbr || "TBD"}
-              </span>
+              <div className="player-identity">
+                <PlayerPhoto player={player} assets={assets} />
+                <div>
+                  <strong>{playerName(player)}</strong>
+                  <span>
+                    {player.position} · <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="player-meta">
               <span>${player.price}m</span>
@@ -48,6 +53,18 @@ function PlayerDb({ players, search, position, sortBy, onSearchChange, onPositio
       </div>
     </section>
   );
+}
+
+function PlayerPhoto({ player, assets }) {
+  const photo = assets.players?.[player.id]?.path;
+  if (photo) return <img className="player-photo" src={photo} alt={playerName(player)} />;
+  return <div className="player-photo player-photo-fallback">{playerName(player).slice(0, 1)}</div>;
+}
+
+function Flag({ player, assets }) {
+  const flag = assets.flags?.[player.squadId]?.path;
+  if (!flag) return null;
+  return <img className="flag-icon" src={flag} alt="" />;
 }
 
 export default PlayerDb;

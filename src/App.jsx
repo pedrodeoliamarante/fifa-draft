@@ -20,6 +20,7 @@ function App() {
     return token ? { token, manager: null, league: null } : null;
   });
   const [data, setData] = useState({ players: [], team: null, standings: [], draft: null });
+  const [assets, setAssets] = useState({ flags: {}, players: {} });
   const [loadState, setLoadState] = useState(session ? "loading" : "login");
   const [loginState, setLoginState] = useState({ loginName: "pedro", password: "demo", error: "" });
   const [activeView, setActiveView] = useState("my-team");
@@ -51,6 +52,13 @@ function App() {
     });
     setLoadState("ready");
   }
+
+  useEffect(() => {
+    fetch("/assets/player-assets.json")
+      .then((response) => (response.ok ? response.json() : { flags: {}, players: {} }))
+      .then((manifest) => setAssets({ flags: manifest.flags || {}, players: manifest.players || {} }))
+      .catch(() => setAssets({ flags: {}, players: {} }));
+  }, []);
 
   useEffect(() => {
     if (!session?.token) return;
@@ -209,7 +217,7 @@ function App() {
       </nav>
 
       {activeView === "my-team" && (
-        <MyTeam team={data.team} formation={formation} onFormationChange={setFormation} />
+        <MyTeam team={data.team} formation={formation} assets={assets} onFormationChange={setFormation} />
       )}
 
       {activeView === "league-standings" && <LeagueStandings standings={data.standings} />}
@@ -218,6 +226,7 @@ function App() {
         <Draft
           draft={data.draft}
           players={availablePlayers}
+          assets={assets}
           session={session}
           search={search}
           position={position}
@@ -234,6 +243,7 @@ function App() {
       {activeView === "player-db" && (
         <PlayerDb
           players={availablePlayers}
+          assets={assets}
           search={search}
           position={position}
           sortBy={sortBy}
