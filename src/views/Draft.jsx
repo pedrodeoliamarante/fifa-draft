@@ -72,31 +72,25 @@ function Draft({
           )}
         </div>
 
-        {blockedSquads.size > 0 && (
-          <div className="drafted-countries">
-            <span className="drafted-countries-label">Your countries</span>
-            <div className="drafted-countries-flags">
-              {[...blockedSquads].map((squadId) => {
-                const flag = assets.flags?.[squadId]?.path;
-                return flag ? (
-                  <img key={squadId} className="flag-icon" src={flag} alt="" title={assets.flags[squadId]?.name || ""} />
-                ) : null;
-              })}
-            </div>
-          </div>
-        )}
-
         <div className="standings-list">
-          {(draft?.managers || []).map((manager) => (
-            <div
-              className={draft?.currentPick?.manager?.id === manager.id ? "standing-row active-turn" : "standing-row"}
-              key={manager.id}
-            >
-              <span>{manager.draftPosition}</span>
-              <strong>{manager.displayName}</strong>
-              <span></span>
-            </div>
-          ))}
+          {(draft?.managers || []).map((manager) => {
+            const squads = draft?.managerSquads?.[manager.id] || [];
+            return (
+              <div
+                className={draft?.currentPick?.manager?.id === manager.id ? "standing-row active-turn" : "standing-row"}
+                key={manager.id}
+              >
+                <span>{manager.draftPosition}</span>
+                <strong>{manager.displayName}</strong>
+                <span className="manager-flags">
+                  {squads.map((squadId) => {
+                    const flag = assets.flags?.[squadId]?.path;
+                    return flag ? <img key={squadId} className="flag-icon-sm" src={flag} alt="" /> : null;
+                  })}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         {(draft?.picks || []).length > 0 && (
@@ -156,8 +150,6 @@ function Draft({
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">
-                  <span>${player.price}m</span>
-                  <span>{player.percentSelected}%</span>
                   <button disabled={!isMyTurn || pickState === "picking" || countryBlocked} onClick={() => onPick(player.id)} type="button">
                     {countryBlocked ? "Taken" : "Pick"}
                   </button>

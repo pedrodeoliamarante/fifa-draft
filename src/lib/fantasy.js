@@ -1,8 +1,7 @@
 export const positions = ["ALL", "GK", "DEF", "MID", "FWD"];
 
 export const sortOptions = [
-  { value: "price", label: "Price" },
-  { value: "selected", label: "Selected %" },
+  { value: "price", label: "Ability" },
   { value: "name", label: "Name" },
 ];
 

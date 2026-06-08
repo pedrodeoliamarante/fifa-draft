@@ -770,28 +770,18 @@ button:focus-visible {
   color: #3a6ff8;
 }
 
-.drafted-countries {
+.manager-flags {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--soft-line);
+  gap: 2px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.drafted-countries-label {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.drafted-countries-flags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+.flag-icon-sm {
+  width: 14px;
+  height: 10px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08);
 }
 
 .country-blocked {

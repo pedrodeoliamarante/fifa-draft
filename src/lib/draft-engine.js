@@ -120,6 +120,12 @@ export function createDraftEngine(allPlayers, squads) {
     const isComplete = nextPickNumber > totalPicks;
     const current = isComplete ? null : getPickManager(managers, nextPickNumber);
 
+    const managerSquads = {};
+    for (const m of managers) {
+      const roster = getManagerRoster(state, m.id);
+      managerSquads[m.id] = roster.map((p) => p.squadId);
+    }
+
     return {
       managers,
       picks: state.picks,
@@ -127,6 +133,7 @@ export function createDraftEngine(allPlayers, squads) {
       totalPicks,
       nextPickNumber,
       isComplete,
+      managerSquads,
       currentPick: current
         ? {
             pickNumber: nextPickNumber,
