@@ -37,6 +37,7 @@ function App() {
   const [activeView, setActiveView] = useState("draft");
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("ALL");
+  const [country, setCountry] = useState("ALL");
   const [sortBy, setSortBy] = useState("points");
   const [formation, setFormation] = useState("4-3-3");
   const [draftError, setDraftError] = useState("");
@@ -163,6 +164,7 @@ function App() {
     const query = search.trim().toLowerCase();
     return data.players
       .filter((player) => position === "ALL" || player.position === position)
+      .filter((player) => country === "ALL" || player.teamAbbr === country)
       .filter((player) => {
         if (!query) return true;
         return `${playerName(player)} ${player.team || ""} ${player.teamAbbr || ""}`.toLowerCase().includes(query);
@@ -172,7 +174,17 @@ function App() {
         if (sortBy === "price") return b.price - a.price;
         return (b.totalPoints || 0) - (a.totalPoints || 0);
       });
-  }, [data.players, position, search, sortBy]);
+  }, [data.players, position, country, search, sortBy]);
+
+  const countryOptions = useMemo(() => {
+    const teams = new Map();
+    for (const p of data.players) {
+      if (p.teamAbbr && !teams.has(p.teamAbbr)) {
+        teams.set(p.teamAbbr, p.team || p.teamAbbr);
+      }
+    }
+    return [{ value: "ALL", label: "All countries" }, ...[...teams.entries()].map(([abbr, name]) => ({ value: abbr, label: name })).sort((a, b) => a.label.localeCompare(b.label))];
+  }, [data.players]);
 
   function updateLoginState(next) {
     setLoginState((current) => ({ ...current, ...next }));
@@ -389,6 +401,8 @@ function App() {
           session={session}
           search={search}
           position={position}
+          country={country}
+          countryOptions={countryOptions}
           sortBy={sortBy}
           draftError={draftError}
           pickState={pickState}
@@ -396,6 +410,7 @@ function App() {
           draftedSquads={data.draft?.managerSquads?.[session?.manager?.id] || []}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
+          onCountryChange={setCountry}
           onSortChange={setSortBy}
           onPick={handleDraftPick}
           onResetDraft={session?.manager?.isAdmin ? handleResetDraft : null}
@@ -420,9 +435,12 @@ function App() {
           assets={assets}
           search={search}
           position={position}
+          country={country}
+          countryOptions={countryOptions}
           sortBy={sortBy}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
+          onCountryChange={setCountry}
           onSortChange={setSortBy}
         />
       )}

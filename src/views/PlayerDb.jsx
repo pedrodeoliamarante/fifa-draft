@@ -1,13 +1,39 @@
-import React from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { playerName, positions, sortOptions } from "../lib/fantasy";
 
-function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, onPositionChange, onSortChange }) {
+const PAGE_SIZE = 40;
+
+function PlayerDb({ players, assets, search, position, country, countryOptions, sortBy, onSearchChange, onPositionChange, onCountryChange, onSortChange }) {
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const observer = useRef(null);
+
+  // Reset visible count when filters change
+  const prevKey = useRef("");
+  const filterKey = `${search}|${position}|${country}|${sortBy}`;
+  if (filterKey !== prevKey.current) {
+    prevKey.current = filterKey;
+    if (visible !== PAGE_SIZE) setVisible(PAGE_SIZE);
+  }
+
+  const lastRef = useCallback((node) => {
+    if (observer.current) observer.current.disconnect();
+    if (!node) return;
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setVisible((v) => v + PAGE_SIZE);
+      }
+    });
+    observer.current.observe(node);
+  }, []);
+
+  const shown = players.slice(0, visible);
+
   return (
     <section className="panel player-panel">
       <div className="panel-header">
         <div>
-          <h2>Available Players</h2>
-          <p>{players.length.toLocaleString()} players available</p>
+          <h2>Player DB</h2>
+          <p>{players.length.toLocaleString()} players</p>
         </div>
       </div>
 
@@ -20,6 +46,11 @@ function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, o
             </option>
           ))}
         </select>
+        <select value={country} onChange={(event) => onCountryChange(event.target.value)}>
+          {(countryOptions || []).map((item) => (
+            <option key={item.value} value={item.value}>{item.label}</option>
+          ))}
+        </select>
         <select value={sortBy} onChange={(event) => onSortChange(event.target.value)}>
           {sortOptions.map((item) => (
             <option key={item.value} value={item.value}>
@@ -30,8 +61,12 @@ function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, o
       </div>
 
       <div className="player-list">
-        {players.slice(0, 120).map((player) => (
-          <article className="player-row" key={player.id}>
+        {shown.map((player, i) => (
+          <article
+            className="player-row"
+            key={player.id}
+            ref={i === shown.length - 1 ? lastRef : undefined}
+          >
             <div className="player-main">
               <strong>{playerName(player)}</strong>
               <span>
@@ -39,20 +74,17 @@ function PlayerDb({ players, assets, search, position, sortBy, onSearchChange, o
               </span>
             </div>
             <div className="player-meta">
-              <span>{player.stats?.totalPoints || 0} pts</span>
+              <span>{player.stats?.totalPoints || player.totalPoints || 0} pts</span>
               <span>{player.nextFixture || "—"}</span>
             </div>
           </article>
         ))}
+        {visible < players.length && (
+          <div className="load-more-sentinel" />
+        )}
       </div>
     </section>
   );
-}
-
-function PlayerPhoto({ player, assets }) {
-  const photo = assets.players?.[player.id]?.path;
-  if (photo) return <img className="player-photo" src={photo} alt={playerName(player)} />;
-  return <div className="player-photo player-photo-fallback">{playerName(player).slice(0, 1)}</div>;
 }
 
 function Flag({ player, assets }) {

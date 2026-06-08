@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { playerName, positions, sortOptions } from "../lib/fantasy";
+
+const PAGE_SIZE = 40;
 
 function formatTime(ms) {
   if (ms == null || ms <= 0) return "0:00";
@@ -16,6 +18,8 @@ function Draft({
   session,
   search,
   position,
+  country,
+  countryOptions,
   sortBy,
   draftError,
   pickState,
@@ -23,6 +27,7 @@ function Draft({
   draftedSquads,
   onSearchChange,
   onPositionChange,
+  onCountryChange,
   onSortChange,
   onPick,
   onResetDraft,
@@ -32,6 +37,29 @@ function Draft({
 }) {
   const draftStatus = draft?.draftStatus || "waiting";
   const blockedSquads = new Set(draftedSquads || []);
+
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const observer = useRef(null);
+
+  const prevKey = useRef("");
+  const filterKey = `${search}|${position}|${country}|${sortBy}`;
+  if (filterKey !== prevKey.current) {
+    prevKey.current = filterKey;
+    if (visible !== PAGE_SIZE) setVisible(PAGE_SIZE);
+  }
+
+  const lastRef = useCallback((node) => {
+    if (observer.current) observer.current.disconnect();
+    if (!node) return;
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setVisible((v) => v + PAGE_SIZE);
+      }
+    });
+    observer.current.observe(node);
+  }, []);
+
+  const shown = players.slice(0, visible);
 
   return (
     <section className="draft-grid">
@@ -152,6 +180,11 @@ function Draft({
               </option>
             ))}
           </select>
+          <select value={country} onChange={(event) => onCountryChange(event.target.value)}>
+            {(countryOptions || []).map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
           <select value={sortBy} onChange={(event) => onSortChange(event.target.value)}>
             {sortOptions.map((item) => (
               <option key={item.value} value={item.value}>
@@ -164,11 +197,15 @@ function Draft({
         {draftError && <p className="draft-error">{draftError}</p>}
 
         <div className="player-list">
-          {players.slice(0, 120).map((player) => {
+          {shown.map((player, i) => {
             const isMyTurn = draft?.currentPick?.manager?.id === session?.manager?.id;
             const countryBlocked = blockedSquads.has(player.squadId);
             return (
-              <article className={`player-row draft-player-row${countryBlocked ? " country-blocked" : ""}`} key={player.id}>
+              <article
+                className={`player-row draft-player-row${countryBlocked ? " country-blocked" : ""}`}
+                key={player.id}
+                ref={i === shown.length - 1 ? lastRef : undefined}
+              >
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
@@ -183,6 +220,9 @@ function Draft({
               </article>
             );
           })}
+          {visible < players.length && (
+            <div className="load-more-sentinel" />
+          )}
         </div>
       </div>
     </section>
