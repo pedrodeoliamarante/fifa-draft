@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { setEngine, getEngine, apiRequest } from "./lib/api";
-import { createDraftEngine } from "./lib/draft-engine";
+import { apiRequest } from "./lib/api";
 import { playerName } from "./lib/fantasy";
 import Draft from "./views/Draft";
 import LeagueStandings from "./views/LeagueStandings";
@@ -10,12 +9,7 @@ import PlayerDb from "./views/PlayerDb";
 import Rules from "./views/Rules";
 import Trades from "./views/Trades";
 import FreeAgents from "./views/FreeAgents";
-
 import Schedule from "./views/Schedule";
-
-import playersJson from "../data/fifa-fantasy/players.json";
-import squadsJson from "../data/fifa-fantasy/squads.json";
-import roundsJson from "../data/fifa-fantasy/rounds.json";
 
 const menuItems = [
   { id: "my-team", label: "My Team" },
@@ -28,14 +22,8 @@ const menuItems = [
   { id: "rules", label: "Rules" },
 ];
 
-// One-time engine initialization
-const engine = createDraftEngine(playersJson, squadsJson, roundsJson);
-setEngine(engine);
-
 const isDebug = import.meta.env.VITE_MODE !== "prod";
-if (isDebug && typeof window !== "undefined") window.__engine = engine;
-
-const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
+const PICK_TIMER_MS = 60 * 60 * 1000;
 
 function App() {
   const [session, setSession] = useState(() => {
@@ -45,7 +33,7 @@ function App() {
   const [data, setData] = useState({ players: [], team: null, standings: [], draft: null });
   const [assets, setAssets] = useState({ flags: {}, players: {} });
   const [loadState, setLoadState] = useState(session ? "loading" : "login");
-  const [loginState, setLoginState] = useState({ loginName: isDebug ? "pedro" : "", password: "", error: "" });
+  const [loginState, setLoginState] = useState({ loginName: isDebug ? "pedro" : "", password: isDebug ? "demo" : "", error: "" });
   const [activeView, setActiveView] = useState("draft");
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("ALL");
@@ -57,52 +45,64 @@ function App() {
   const [lineup, setLineup] = useState({ startingXI: [], captainId: null, formation: "4-3-3" });
   const [lineupError, setLineupError] = useState("");
   const [liveStatus, setLiveStatus] = useState(null);
+  // Schedule/standings data fetched from API
+  const [rounds, setRounds] = useState([]);
+  const [currentMatchday, setCurrentMatchday] = useState(null);
+  const [trades, setTrades] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [rosters, setRosters] = useState({});
+  const [faStatus, setFaStatus] = useState({ isOpen: false, currentMatchday: 1, completedMatchdays: [] });
+  const [faPool, setFaPool] = useState([]);
   const timerRef = useRef(null);
-  const refreshRef = useRef(null);
+  const pollRef = useRef(null);
 
-  async function api(path, options = {}, token = session?.token) {
+  function api(path, options = {}, token = session?.token) {
     return apiRequest(path, { ...options, token });
   }
 
-  function refreshData(token = session?.token) {
-    const managerId = Number(token.replace("local-", ""));
-    const me = engine.getMe(managerId);
-    const playerDb = engine.getPlayers();
-    const standings = engine.getStandings();
-    const draft = engine.getDraft();
+  async function refreshData(token = session?.token) {
+    try {
+      const [me, playerDb, standings, draft, lineupData, roundsData, currentMd] = await Promise.all([
+        api("/api/me", {}, token),
+        api("/api/players", {}, token),
+        api("/api/standings", {}, token),
+        api("/api/draft", {}, token),
+        api("/api/lineup", {}, token),
+        api("/api/rounds", {}, token),
+        api("/api/rounds/current", {}, token),
+      ]);
 
-    setSession((current) => ({ ...current, token, manager: me.manager, league: me.league }));
-    setData({
-      players: playerDb.players,
-      team: me.team,
-      standings: standings.standings,
-      draft,
-    });
-    setLineup(engine.getLineup(managerId));
-    setLoadState("ready");
+      setSession((current) => ({ ...current, token, manager: me.manager, league: me.league }));
+      setData({ players: playerDb.players, team: me.team, standings: standings.standings, draft });
+      setLineup(lineupData);
+      setRounds(roundsData.rounds || []);
+      setCurrentMatchday(currentMd?.id ? currentMd : null);
+      setManagers(draft.managers || []);
+      setLoadState("ready");
+    } catch (error) {
+      localStorage.removeItem("draftToken");
+      setSession(null);
+      setLoginState((current) => ({ ...current, error: error.message || "Session expired." }));
+      setLoadState("login");
+    }
   }
 
   // Load player photo/flag assets
   useEffect(() => {
-    fetch("/assets/player-assets.json")
-      .then((response) => (response.ok ? response.json() : { flags: {}, players: {} }))
-      .then((manifest) => setAssets({ flags: manifest.flags || {}, players: manifest.players || {} }))
+    const base = import.meta.env.VITE_API_URL ? "" : "";
+    fetch(`${base}/assets/player-assets.json`)
+      .then((r) => (r.ok ? r.json() : { flags: {}, players: {} }))
+      .then((m) => setAssets({ flags: m.flags || {}, players: m.players || {} }))
       .catch(() => setAssets({ flags: {}, players: {} }));
   }, []);
 
-  // On mount, if we have a token, load data immediately
+  // On mount, if we have a token, load data
   useEffect(() => {
     if (!session?.token) return;
-    try {
-      refreshData(session.token);
-    } catch {
-      localStorage.removeItem("draftToken");
-      setSession(null);
-      setLoadState("login");
-    }
+    refreshData(session.token);
   }, [session?.token]);
 
-  // Draft timer — counts down from 1 hour, auto-picks on expiry
+  // Draft timer — client-side countdown, server handles auto-pick
   useEffect(() => {
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -119,9 +119,11 @@ function App() {
       const remaining = PICK_TIMER_MS - elapsed;
       if (remaining <= 0) {
         clearInterval(timerRef.current);
-        // Auto-pick
-        engine.doAutoPick();
-        if (session?.token) refreshData(session.token);
+        setTimeLeft(0);
+        // Server auto-picks — just re-fetch draft state after a moment
+        setTimeout(() => {
+          if (session?.token) refreshData(session.token);
+        }, 2000);
       } else {
         setTimeLeft(remaining);
       }
@@ -132,31 +134,30 @@ function App() {
     return () => clearInterval(timerRef.current);
   }, [data.draft?.currentPick?.pickNumber, data.draft?.isComplete]);
 
-  // Live data refresh — every 5 minutes, auto-lock lineups on kickoff
+  // Poll for draft updates every 10 seconds (to see other players' picks)
   useEffect(() => {
-    if (refreshRef.current) clearInterval(refreshRef.current);
+    if (pollRef.current) clearInterval(pollRef.current);
     if (loadState !== "ready") return;
 
-    async function doRefresh() {
-      const result = await engine.refreshLiveData();
-      setLiveStatus(result);
-
-      // Auto-lock lineups if current matchday has kicked off
-      const md = engine.getCurrentMatchday();
-      if (md && engine.isRoundLocked(md.id)) {
-        engine.autoLockAllLineups(md.id);
+    pollRef.current = setInterval(() => {
+      if (session?.token) {
+        api("/api/draft").then((draft) => {
+          setData((current) => {
+            if (draft.nextPickNumber !== current.draft?.nextPickNumber) {
+              // Draft state changed — do a full refresh
+              refreshData(session.token);
+            }
+            return { ...current, draft };
+          });
+        }).catch(() => {});
       }
+    }, 10000);
 
-      if (session?.token) refreshData(session.token);
-    }
-
-    refreshRef.current = setInterval(doRefresh, 5 * 60 * 1000);
-    return () => clearInterval(refreshRef.current);
-  }, [loadState]);
+    return () => clearInterval(pollRef.current);
+  }, [loadState, session?.token]);
 
   const availablePlayers = useMemo(() => {
     const query = search.trim().toLowerCase();
-
     return data.players
       .filter((player) => position === "ALL" || player.position === position)
       .filter((player) => {
@@ -166,7 +167,7 @@ function App() {
       .sort((a, b) => {
         if (sortBy === "name") return playerName(a).localeCompare(playerName(b));
         if (sortBy === "price") return b.price - a.price;
-        return (b.stats?.totalPoints || 0) - (a.stats?.totalPoints || 0);
+        return (b.totalPoints || 0) - (a.totalPoints || 0);
       });
   }, [data.players, position, search, sortBy]);
 
@@ -174,11 +175,13 @@ function App() {
     setLoginState((current) => ({ ...current, ...next }));
   }
 
-  async function loginWith(loginName) {
+  async function loginWith(loginName, password) {
     setLoginState((current) => ({ ...current, error: "" }));
-
     try {
-      const body = engine.login(loginName);
+      const body = await apiRequest("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ loginName, password: password || "demo" }),
+      });
       localStorage.setItem("draftToken", body.token);
       setSession({ token: body.token, manager: body.manager, league: body.league });
       setData((current) => ({ ...current, team: body.team }));
@@ -190,30 +193,29 @@ function App() {
 
   async function handleLogin(event) {
     event.preventDefault();
-    await loginWith(loginState.loginName);
+    await loginWith(loginState.loginName, loginState.password);
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    try { await api("/api/logout", { method: "POST" }); } catch {}
     localStorage.removeItem("draftToken");
     setSession(null);
     setData({ players: [], team: null, standings: [], draft: null });
     setLoadState("login");
   }
 
-  function handleDraftPick(playerId) {
+  async function handleDraftPick(playerId) {
     setDraftError("");
     setPickState("picking");
-
     try {
-      const result = engine.pick(session.manager.id, playerId);
-      const playerDb = engine.getPlayers();
-      const standings = engine.getStandings();
+      const result = await api("/api/draft/pick", { method: "POST", body: JSON.stringify({ playerId }) });
+      const [playerDb, standings] = await Promise.all([api("/api/players"), api("/api/standings")]);
       setData((current) => ({
         ...current,
         players: playerDb.players,
         standings: standings.standings,
         draft: result.draft,
-        team: { ...current.team, players: result.team },
+        team: result.team,
       }));
     } catch (error) {
       setDraftError(error.message || "Could not make pick");
@@ -222,43 +224,55 @@ function App() {
     }
   }
 
-  function handleAutoDraft() {
-    for (let i = 0; i < 90; i++) {
-      if (!engine.doAutoPick()) break;
-    }
-    if (session?.token) refreshData(session.token);
+  async function handleResetDraft() {
+    await api("/api/admin/reset-draft", { method: "POST" });
+    await refreshData(session.token);
   }
 
-  function handleResetDraft() {
-    engine.resetDraft();
-    if (session?.token) refreshData(session.token);
-  }
-
-  function handleAutoDraft() {
-    for (let i = 0; i < 90; i++) {
-      if (!engine.doAutoPick()) break;
-    }
-    if (session?.token) refreshData(session.token);
-  }
-
-  function handleToggleXI(playerId) {
+  async function handleToggleXI(playerId) {
     setLineupError("");
     try {
-      const updated = engine.toggleStartingXI(session.manager.id, playerId, formation);
+      const updated = await api("/api/lineup/toggle", { method: "POST", body: JSON.stringify({ playerId }) });
       setLineup(updated);
     } catch (error) {
       setLineupError(error.message);
     }
   }
 
-  function handleSetCaptain(playerId) {
+  async function handleSetCaptain(playerId) {
     setLineupError("");
     try {
-      const updated = engine.setCaptain(session.manager.id, playerId);
+      const updated = await api("/api/lineup/captain", { method: "POST", body: JSON.stringify({ playerId }) });
       setLineup(updated);
     } catch (error) {
       setLineupError(error.message);
     }
+  }
+
+  // Lazy-load trades data when trades tab is opened
+  async function loadTrades() {
+    try {
+      const [tradesData, ...rosterResults] = await Promise.all([
+        api("/api/trades"),
+        ...managers.map((m) => api(`/api/teams/${m.id}`)),
+      ]);
+      setTrades(tradesData.trades || []);
+      const rMap = {};
+      managers.forEach((m, i) => { rMap[m.id] = rosterResults[i]?.team?.players || []; });
+      setRosters(rMap);
+    } catch {}
+  }
+
+  // Lazy-load FA data when free agents tab is opened
+  async function loadFreeAgents() {
+    try {
+      const [status, pool] = await Promise.all([
+        api("/api/free-agents/status"),
+        api("/api/free-agents/pool"),
+      ]);
+      setFaStatus(status);
+      setFaPool(pool.pool || []);
+    } catch {}
   }
 
   if (loadState === "login") {
@@ -267,7 +281,7 @@ function App() {
         loginState={loginState}
         onLoginChange={updateLoginState}
         onSubmit={handleLogin}
-        onQuickLogin={isDebug ? (loginName) => loginWith(loginName) : null}
+        onQuickLogin={isDebug ? (loginName) => loginWith(loginName, "demo") : null}
       />
     );
   }
@@ -277,7 +291,7 @@ function App() {
       <main className="shell">
         <section className="panel loading-panel">
           <h1>Loading FIFA Draft</h1>
-          <p>Reading manager, team, league, and player data.</p>
+          <p>Connecting to server...</p>
         </section>
       </main>
     );
@@ -303,7 +317,11 @@ function App() {
           <button
             className={activeView === item.id ? "active" : ""}
             key={item.id}
-            onClick={() => setActiveView(item.id)}
+            onClick={() => {
+              setActiveView(item.id);
+              if (item.id === "trades") loadTrades();
+              if (item.id === "free-agents") loadFreeAgents();
+            }}
             type="button"
           >
             {item.label}
@@ -319,15 +337,15 @@ function App() {
             formation={formation}
             assets={assets}
             lineup={lineup}
-            currentMatchday={engine.getCurrentMatchday()}
-            isLocked={(() => { const md = engine.getCurrentMatchday(); return md ? engine.isRoundLocked(md.id) : false; })()}
-            lockTimeLeft={(() => { const md = engine.getCurrentMatchday(); return md ? engine.getLockTimeLeft(md.id) : null; })()}
+            currentMatchday={currentMatchday}
+            isLocked={false}
+            lockTimeLeft={null}
             onFormationChange={setFormation}
             onToggleXI={handleToggleXI}
             onSetCaptain={handleSetCaptain}
-            onRelease={(playerId) => {
-              engine.releasePlayer(session.manager.id, playerId);
-              refreshData(session.token);
+            onRelease={async (playerId) => {
+              await api("/api/free-agents/release", { method: "POST", body: JSON.stringify({ playerId }) });
+              await refreshData(session.token);
             }}
           />
         </>
@@ -337,24 +355,23 @@ function App() {
         <LeagueStandings
           standings={data.standings}
           assets={assets}
-          engine={engine}
-          currentMatchday={engine.getCurrentMatchday()}
+          api={api}
+          currentMatchday={currentMatchday}
         />
       )}
 
       {activeView === "schedule" && (
         <Schedule
-          engine={engine}
+          api={api}
           session={session}
           assets={assets}
+          rounds={rounds}
+          currentMatchday={currentMatchday}
+          managers={managers}
           onRefresh={async () => {
-            const result = await engine.refreshLiveData();
+            const result = await api("/api/admin/refresh-live-data", { method: "POST" });
             setLiveStatus(result);
-            const md = engine.getCurrentMatchday();
-            if (md && engine.isRoundLocked(md.id)) {
-              engine.autoLockAllLineups(md.id);
-            }
-            if (session?.token) refreshData(session.token);
+            await refreshData(session.token);
             return result;
           }}
           liveStatus={liveStatus}
@@ -373,13 +390,13 @@ function App() {
           draftError={draftError}
           pickState={pickState}
           timeLeft={timeLeft}
-          draftedSquads={session?.manager?.id ? engine.getMyDraftedSquads(session.manager.id) : []}
+          draftedSquads={data.draft?.managerSquads?.[session?.manager?.id] || []}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
           onSortChange={setSortBy}
           onPick={handleDraftPick}
           onResetDraft={isDebug ? handleResetDraft : null}
-          onAutoDraft={isDebug ? handleAutoDraft : null}
+          onAutoDraft={null}
         />
       )}
 
@@ -399,24 +416,25 @@ function App() {
       {activeView === "trades" && (
         <Trades
           session={session}
-          trades={engine.getTrades()}
-          managers={engine.managers}
-          rosters={Object.fromEntries(engine.managers.map((m) => [m.id, engine.getMe(m.id).team.players]))}
-          onPropose={(toId, offering, requesting) => {
-            engine.proposeTrade(session.manager.id, toId, offering, requesting);
-            refreshData(session.token);
+          trades={trades}
+          managers={managers}
+          rosters={rosters}
+          onPropose={async (toId, offering, requesting) => {
+            await api("/api/trades", { method: "POST", body: JSON.stringify({ toManagerId: toId, offeringPlayerIds: offering, requestingPlayerIds: requesting }) });
+            await loadTrades();
           }}
-          onAccept={(tradeId) => {
-            engine.respondToTrade(tradeId, session.manager.id, true);
-            refreshData(session.token);
+          onAccept={async (tradeId) => {
+            await api(`/api/trades/${tradeId}/accept`, { method: "POST" });
+            await loadTrades();
+            await refreshData(session.token);
           }}
-          onReject={(tradeId) => {
-            engine.respondToTrade(tradeId, session.manager.id, false);
-            refreshData(session.token);
+          onReject={async (tradeId) => {
+            await api(`/api/trades/${tradeId}/reject`, { method: "POST" });
+            await loadTrades();
           }}
-          onCancel={(tradeId) => {
-            engine.cancelTrade(tradeId, session.manager.id);
-            refreshData(session.token);
+          onCancel={async (tradeId) => {
+            await api(`/api/trades/${tradeId}/cancel`, { method: "POST" });
+            await loadTrades();
           }}
         />
       )}
@@ -424,26 +442,28 @@ function App() {
       {activeView === "free-agents" && (
         <FreeAgents
           session={session}
-          pool={engine.isFreeAgencyOpen() ? engine.getFreeAgentPool() : []}
-          myRoster={engine.getMe(session.manager.id).team.players}
+          pool={faPool}
+          myRoster={data.team?.players || []}
           assets={assets}
-          isOpen={engine.isFreeAgencyOpen()}
-          matchday={engine.getFreeAgencyMatchday()}
-          onClaim={(playerId) => {
-            engine.claimFreeAgent(session.manager.id, playerId);
-            refreshData(session.token);
+          isOpen={faStatus.isOpen}
+          matchday={faStatus}
+          onClaim={async (playerId) => {
+            await api("/api/free-agents/claim", { method: "POST", body: JSON.stringify({ playerId }) });
+            await loadFreeAgents();
+            await refreshData(session.token);
           }}
-          onRelease={(playerId) => {
-            engine.releasePlayer(session.manager.id, playerId);
-            refreshData(session.token);
+          onRelease={async (playerId) => {
+            await api("/api/free-agents/release", { method: "POST", body: JSON.stringify({ playerId }) });
+            await loadFreeAgents();
+            await refreshData(session.token);
           }}
-          onRefresh={isDebug ? () => {
-            engine.refreshFreeAgentPool();
-            refreshData(session.token);
+          onRefresh={isDebug ? async () => {
+            await api("/api/admin/refresh-fa-pool", { method: "POST" });
+            await loadFreeAgents();
           } : null}
-          onCompleteMatchday={isDebug ? (md) => {
-            engine.completeMatchdayForFA(md);
-            refreshData(session.token);
+          onCompleteMatchday={isDebug ? async (md) => {
+            await api("/api/admin/complete-matchday", { method: "POST", body: JSON.stringify({ matchday: md }) });
+            await loadFreeAgents();
           } : null}
         />
       )}

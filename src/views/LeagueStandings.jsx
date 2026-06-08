@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { formationSlots, playerName } from "../lib/fantasy";
 
-function LeagueStandings({ standings, assets, engine, currentMatchday }) {
+function LeagueStandings({ standings, assets, api, currentMatchday }) {
   const [expandedManager, setExpandedManager] = useState(null);
+  const [roundPoints, setRoundPoints] = useState({});
   const defaultFormation = "4-3-3";
 
   const activeRoundId = currentMatchday?.id || null;
-  const roundLocked = activeRoundId ? engine.isRoundLocked(activeRoundId) : false;
+
+  // Fetch round points for expanded manager
+  useEffect(() => {
+    if (!expandedManager || !activeRoundId || !api) return;
+    if (roundPoints[expandedManager]) return;
+
+    api(`/api/rounds/${activeRoundId}/points/${expandedManager}`)
+      .then((data) => setRoundPoints((prev) => ({ ...prev, [expandedManager]: data })))
+      .catch(() => {});
+  }, [expandedManager, activeRoundId]);
 
   function toggleManager(managerId) {
     setExpandedManager((current) => (current === managerId ? null : managerId));
@@ -15,55 +25,33 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
   function buildLineup(roster) {
     const slots = formationSlots[defaultFormation];
     const positionNeeds = {};
-    for (const pos of slots) {
-      positionNeeds[pos] = (positionNeeds[pos] || 0) + 1;
-    }
+    for (const pos of slots) positionNeeds[pos] = (positionNeeds[pos] || 0) + 1;
 
     const starting = [];
     const used = new Set();
-
     for (const pos of Object.keys(positionNeeds)) {
       const need = positionNeeds[pos];
       const candidates = roster.filter((p) => p.position === pos && !used.has(p.id));
-      const picked = candidates.slice(0, need);
-      for (const p of picked) {
-        starting.push(p);
-        used.add(p.id);
-      }
+      for (const p of candidates.slice(0, need)) { starting.push(p); used.add(p.id); }
     }
-
-    const bench = roster.filter((p) => !used.has(p.id));
-    return { starting, bench };
+    return { starting, bench: roster.filter((p) => !used.has(p.id)) };
   }
 
   return (
     <section className="panel empty-view">
       <h2>League Standings</h2>
 
-      {/* Live round points banner */}
-      {activeRoundId && roundLocked && (
-        <div className="live-round-banner">
-          <span className="live-dot" />
-          <strong>Matchday {activeRoundId} — Live Points</strong>
-        </div>
-      )}
-
       <div className="standings-list">
         {standings.map((row, index) => {
           const isExpanded = expandedManager === row.managerId;
+          const rPts = roundPoints[row.managerId];
 
-          // Get locked lineup points if round is active
-          const roundPts = activeRoundId && roundLocked
-            ? engine.getRoundPoints(row.managerId, activeRoundId)
-            : null;
-
-          // Build the display lineup — prefer locked lineup for active round
           let displayStarting = [];
           let displayBench = [];
           if (isExpanded) {
-            if (roundPts && roundPts.players.length > 0) {
-              displayStarting = roundPts.players;
-              const startingIds = new Set(displayStarting.map((p) => p.id));
+            if (rPts && rPts.players?.length > 0) {
+              displayStarting = rPts.players;
+              const startingIds = new Set(displayStarting.map((p) => p.playerId));
               displayBench = (row.roster || []).filter((p) => !startingIds.has(p.id));
             } else {
               const lineup = buildLineup(row.roster || []);
@@ -84,9 +72,7 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
                 <span>{index + 1}</span>
                 <strong>{row.logo && <img className="team-logo" src={row.logo} alt="" />}{row.displayName}</strong>
                 <div className="standing-points">
-                  {roundPts !== null && (
-                    <span className="standing-round-pts">+{roundPts.total}</span>
-                  )}
+                  {rPts && <span className="standing-round-pts">+{rPts.totalPoints}</span>}
                   <span>{row.totalPoints} pts</span>
                 </div>
               </div>
@@ -98,17 +84,10 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
                   ) : (
                     <>
                       <div className="standing-roster-section">
-                        <h3>
-                          Starting XI
-                          {roundPts ? (
-                            <span>MD {activeRoundId} — {roundPts.total} pts</span>
-                          ) : (
-                            <span>{defaultFormation}</span>
-                          )}
-                        </h3>
+                        <h3>Starting XI <span>{defaultFormation}</span></h3>
                         <div className="standing-roster-list">
                           {displayStarting.map((player) => (
-                            <div className="standing-player" key={player.id}>
+                            <div className="standing-player" key={player.id || player.playerId}>
                               <span className="standing-player-pos">{player.position}</span>
                               <strong>
                                 <Flag player={player} assets={assets} />
@@ -116,14 +95,10 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
                                 {player.isCaptain && <span className="captain-badge">C</span>}
                               </strong>
                               <span className="standing-player-pts">
-                                {player.effectivePoints != null
-                                  ? `${player.effectivePoints} pts`
-                                  : `${player.stats?.totalPoints || 0} pts`
-                                }
+                                {player.totalPoints != null ? `${player.totalPoints} pts` : `${player.totalPoints || 0} pts`}
                               </span>
                             </div>
                           ))}
-                          {displayStarting.length === 0 && <p className="standing-roster-empty">Not enough players</p>}
                         </div>
                       </div>
 
@@ -137,10 +112,9 @@ function LeagueStandings({ standings, assets, engine, currentMatchday }) {
                                 <Flag player={player} assets={assets} />
                                 {playerName(player)}
                               </strong>
-                              <span className="standing-player-pts">{player.stats?.totalPoints || 0} pts</span>
+                              <span className="standing-player-pts">{player.totalPoints || 0} pts</span>
                             </div>
                           ))}
-                          {displayBench.length === 0 && <p className="standing-roster-empty">No bench players</p>}
                         </div>
                       </div>
                     </>
