@@ -456,6 +456,60 @@ select {
   opacity: 0.45;
 }
 
+.draft-timer {
+  font-size: 28px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #3a6ff8;
+}
+
+.btn-small {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #fef3f2;
+  color: #c03744;
+}
+
+.draft-log {
+  padding: 14px 18px;
+  border-top: 1px solid #e6ecf3;
+}
+
+.draft-log h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #667085;
+  text-transform: uppercase;
+}
+
+.draft-picks-list {
+  display: grid;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.draft-pick-entry {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.pick-number {
+  color: #667085;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (min-width: 720px) {
   .shell {
     width: min(100%, calc(100vw - 32px));

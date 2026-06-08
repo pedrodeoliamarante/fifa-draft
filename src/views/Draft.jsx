@@ -1,6 +1,14 @@
 import React from "react";
 import { playerName, positions, sortOptions } from "../lib/fantasy";
 
+function formatTime(ms) {
+  if (ms == null || ms <= 0) return "0:00";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
 function Draft({
   draft,
   players,
@@ -11,10 +19,12 @@ function Draft({
   sortBy,
   draftError,
   pickState,
+  timeLeft,
   onSearchChange,
   onPositionChange,
   onSortChange,
   onPick,
+  onResetDraft,
 }) {
   return (
     <section className="draft-grid">
@@ -26,10 +36,15 @@ function Draft({
               <p>Draft complete</p>
             ) : (
               <p>
-                Pick {draft?.currentPick?.pickNumber} · Round {draft?.currentPick?.roundNumber}
+                Pick {draft?.currentPick?.pickNumber} &middot; Round {draft?.currentPick?.roundNumber}
               </p>
             )}
           </div>
+          {onResetDraft && (
+            <button className="btn-small btn-danger" onClick={onResetDraft} type="button">
+              Reset Draft
+            </button>
+          )}
         </div>
 
         <div className="draft-turn">
@@ -39,6 +54,9 @@ function Draft({
             <>
               <span>On the clock</span>
               <strong>{draft?.currentPick?.manager?.displayName}</strong>
+              {timeLeft != null && (
+                <span className="draft-timer">{formatTime(timeLeft)}</span>
+              )}
             </>
           )}
         </div>
@@ -55,6 +73,21 @@ function Draft({
             </div>
           ))}
         </div>
+
+        {(draft?.picks || []).length > 0 && (
+          <div className="draft-log">
+            <h3>Pick History</h3>
+            <div className="draft-picks-list">
+              {[...draft.picks].reverse().map((pick) => (
+                <div className="draft-pick-entry" key={pick.pickNumber}>
+                  <span className="pick-number">#{pick.pickNumber}</span>
+                  <strong>{pick.playerName}</strong>
+                  <span>{pick.position} &middot; {pick.teamAbbr}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="panel player-panel">
@@ -93,7 +126,7 @@ function Draft({
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
-                    {player.position} · <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
+                    {player.position} &middot; <Flag player={player} assets={assets} /> {player.teamAbbr || "TBD"}
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">
