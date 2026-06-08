@@ -664,7 +664,7 @@ app.use(express.json());
 // Serve frontend static files (so everything runs on one origin — no CORS popups)
 const distDir = path.join(rootDir, "dist");
 console.log("Static dir:", distDir, "exists:", fs.existsSync(distDir));
-app.use(express.static(distDir));
+app.use(express.static(distDir, { index: "index.html" }));
 
 // ---------------------------------------------------------------------------
 // Auth endpoints
