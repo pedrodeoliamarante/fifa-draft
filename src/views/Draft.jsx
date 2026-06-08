@@ -177,7 +177,7 @@ function Draft({
                 </div>
                 <div className="player-meta draft-player-meta">
                   <button disabled={!isMyTurn || pickState === "picking" || countryBlocked || draftStatus !== "active"} onClick={() => onPick(player.id)} type="button">
-                    {countryBlocked ? "Taken" : "Pick"}
+                    {countryBlocked ? "1 per country" : "Pick"}
                   </button>
                 </div>
               </article>
