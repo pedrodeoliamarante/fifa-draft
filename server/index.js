@@ -1184,10 +1184,9 @@ const distDir = path.join(rootDir, "dist");
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
   // SPA fallback — serve index.html for non-API routes
-  app.get("*", (req, res) => {
-    if (!req.path.startsWith("/api/")) {
-      res.sendFile(path.join(distDir, "index.html"));
-    }
+  app.get("/{*path}", (req, res, next) => {
+    if (req.path.startsWith("/api/")) return next();
+    res.sendFile(path.join(distDir, "index.html"));
   });
 }
 
