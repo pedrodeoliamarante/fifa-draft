@@ -308,6 +308,7 @@ function App() {
           draftError={draftError}
           pickState={pickState}
           timeLeft={timeLeft}
+          draftedSquads={session?.manager?.id ? engine.getMyDraftedSquads(session.manager.id) : []}
           onSearchChange={setSearch}
           onPositionChange={setPosition}
           onSortChange={setSortBy}

@@ -20,6 +20,7 @@ function Draft({
   draftError,
   pickState,
   timeLeft,
+  draftedSquads,
   onSearchChange,
   onPositionChange,
   onSortChange,
@@ -27,6 +28,8 @@ function Draft({
   onResetDraft,
   onAutoDraft,
 }) {
+  const blockedSquads = new Set(draftedSquads || []);
+
   return (
     <section className="draft-grid">
       <div className="panel draft-panel">
@@ -68,6 +71,20 @@ function Draft({
             </>
           )}
         </div>
+
+        {blockedSquads.size > 0 && (
+          <div className="drafted-countries">
+            <span className="drafted-countries-label">Your countries</span>
+            <div className="drafted-countries-flags">
+              {[...blockedSquads].map((squadId) => {
+                const flag = assets.flags?.[squadId]?.path;
+                return flag ? (
+                  <img key={squadId} className="flag-icon" src={flag} alt="" title={assets.flags[squadId]?.name || ""} />
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="standings-list">
           {(draft?.managers || []).map((manager) => (
@@ -129,8 +146,9 @@ function Draft({
         <div className="player-list">
           {players.slice(0, 120).map((player) => {
             const isMyTurn = draft?.currentPick?.manager?.id === session?.manager?.id;
+            const countryBlocked = blockedSquads.has(player.squadId);
             return (
-              <article className="player-row draft-player-row" key={player.id}>
+              <article className={`player-row draft-player-row${countryBlocked ? " country-blocked" : ""}`} key={player.id}>
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
@@ -140,8 +158,8 @@ function Draft({
                 <div className="player-meta draft-player-meta">
                   <span>${player.price}m</span>
                   <span>{player.percentSelected}%</span>
-                  <button disabled={!isMyTurn || pickState === "picking"} onClick={() => onPick(player.id)} type="button">
-                    Pick
+                  <button disabled={!isMyTurn || pickState === "picking" || countryBlocked} onClick={() => onPick(player.id)} type="button">
+                    {countryBlocked ? "Taken" : "Pick"}
                   </button>
                 </div>
               </article>

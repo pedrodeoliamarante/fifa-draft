@@ -20,6 +20,10 @@ function canAddPosition(roster, position) {
   return true;
 }
 
+function rosterSquadIds(roster) {
+  return new Set(roster.map((p) => p.squadId));
+}
+
 // Find the best auto-pick: highest-price available player at a position the manager still needs.
 function autoPick(availablePlayers, managerRoster) {
   const counts = positionCounts(managerRoster);
@@ -37,11 +41,13 @@ function autoPick(availablePlayers, managerRoster) {
     needed.push("DEF", "MID", "FWD");
   }
 
+  const takenSquads = rosterSquadIds(managerRoster);
+
   const candidates = availablePlayers
-    .filter((p) => needed.includes(p.position))
+    .filter((p) => needed.includes(p.position) && !takenSquads.has(p.squadId))
     .sort((a, b) => b.price - a.price);
 
-  return candidates[0] || availablePlayers.sort((a, b) => b.price - a.price)[0] || null;
+  return candidates[0] || availablePlayers.filter((p) => !takenSquads.has(p.squadId)).sort((a, b) => b.price - a.price)[0] || null;
 }
 
 // --- Snake draft order ---
@@ -152,6 +158,9 @@ export function createDraftEngine(allPlayers, squads) {
     if (!canAddPosition(roster, player.position)) {
       throw new Error(`Cannot add another ${player.position} to your roster`);
     }
+    if (rosterSquadIds(roster).has(player.squadId)) {
+      throw new Error(`You already have a player from ${player.team}. Only 1 player per country is allowed.`);
+    }
 
     state.picks.push({
       pickNumber: draft.currentPick.pickNumber,
@@ -161,6 +170,7 @@ export function createDraftEngine(allPlayers, squads) {
       playerName: player.name,
       position: player.position,
       teamAbbr: player.teamAbbr,
+      squadId: player.squadId,
     });
     state.timerStart = Date.now();
     saveState(state);
@@ -448,6 +458,12 @@ export function createDraftEngine(allPlayers, squads) {
     return loadState().timerStart;
   }
 
+  function getMyDraftedSquads(managerId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    return roster.map((p) => p.squadId);
+  }
+
   return {
     login,
     getMe,
@@ -466,6 +482,7 @@ export function createDraftEngine(allPlayers, squads) {
     proposeTrade,
     respondToTrade,
     cancelTrade,
+    getMyDraftedSquads,
     managers,
   };
 }
