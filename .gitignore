@@ -4,3 +4,4 @@ dist/
 data/draft.db
 .claude/
 .tmp-chrome*/
+.playwright-mcp/

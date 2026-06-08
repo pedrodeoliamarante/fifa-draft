@@ -192,6 +192,13 @@ function App() {
     if (session?.token) refreshData(session.token);
   }
 
+  function handleAutoDraft() {
+    for (let i = 0; i < 90; i++) {
+      if (!engine.doAutoPick()) break;
+    }
+    if (session?.token) refreshData(session.token);
+  }
+
   function handleToggleXI(playerId) {
     setLineupError("");
     try {
@@ -296,6 +303,7 @@ function App() {
           onSortChange={setSortBy}
           onPick={handleDraftPick}
           onResetDraft={handleResetDraft}
+          onAutoDraft={handleAutoDraft}
         />
       )}
 

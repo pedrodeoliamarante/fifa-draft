@@ -7,12 +7,9 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
   const captainId = lineup?.captainId;
 
   const posOrder = { GK: 0, DEF: 1, MID: 2, FWD: 3 };
-  const starters = players
-    .filter((p) => startingSet.has(p.id))
-    .sort((a, b) => posOrder[a.position] - posOrder[b.position]);
-  const bench = players
-    .filter((p) => !startingSet.has(p.id))
-    .sort((a, b) => posOrder[a.position] - posOrder[b.position]);
+  const sorted = [...players].sort((a, b) => posOrder[a.position] - posOrder[b.position]);
+  const starters = sorted.filter((p) => startingSet.has(p.id));
+  const bench = sorted.filter((p) => !startingSet.has(p.id));
 
   const slots = formationSlots[formation] || [];
   const needed = {};
@@ -20,119 +17,120 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
   const have = {};
   for (const p of starters) have[p.position] = (have[p.position] || 0) + 1;
 
-  return (
-    <section className="team-grid">
-      <div className="panel team-panel">
+  if (players.length === 0) {
+    return (
+      <section className="panel team-panel">
         <div className="panel-header">
           <div>
-            <h2>Starting XI</h2>
-            <p>{starters.length} / 11 selected</p>
+            <h2>My Team</h2>
+            <p>0 / 15 players</p>
           </div>
         </div>
+        <p className="empty-message">Draft players first to build your roster.</p>
+      </section>
+    );
+  }
 
-        <div className="formation-card">
-          <label>Formation</label>
-          <select value={formation} onChange={(event) => onFormationChange(event.target.value)}>
-            {Object.keys(formationSlots).map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-          <div className="formation-slots">
-            {Object.entries(needed).map(([pos, count]) => (
-              <span
-                key={pos}
-                className={`formation-badge ${(have[pos] || 0) === count ? "complete" : ""}`}
-              >
-                {pos} {have[pos] || 0}/{count}
-              </span>
-            ))}
-          </div>
+  return (
+    <section className="panel team-panel">
+      <div className="panel-header">
+        <div>
+          <h2>My Team</h2>
+          <p>{starters.length}/11 starting &middot; {players.length} players</p>
         </div>
+      </div>
 
-        {starters.length > 0 ? (
-          <div className="lineup">
+      <div className="formation-bar">
+        <select value={formation} onChange={(event) => onFormationChange(event.target.value)}>
+          {Object.keys(formationSlots).map((item) => (
+            <option key={item}>{item}</option>
+          ))}
+        </select>
+        <div className="formation-slots">
+          {Object.entries(needed).map(([pos, count]) => (
+            <span
+              key={pos}
+              className={`formation-badge ${(have[pos] || 0) === count ? "complete" : ""}`}
+            >
+              {pos} {have[pos] || 0}/{count}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="roster-list">
+        {starters.length > 0 && (
+          <>
+            <div className="roster-section-label">Starting XI</div>
             {starters.map((player) => (
-              <div
-                className={`slot lineup-slot filled ${captainId === player.id ? "captain-slot" : ""}`}
+              <PlayerRow
                 key={player.id}
-              >
-                <div className="slot-left">
-                  <span>{player.position}</span>
-                  <strong>
-                    <Flag player={player} assets={assets} /> {playerName(player)}
-                  </strong>
-                </div>
-                <div className="slot-actions">
-                  <button
-                    className={`btn-captain ${captainId === player.id ? "active" : ""}`}
-                    onClick={() => onSetCaptain(player.id)}
-                    title="Set as captain"
-                    type="button"
-                  >
-                    C
-                  </button>
-                  <button
-                    className="btn-remove"
-                    onClick={() => onToggleXI(player.id)}
-                    title="Remove from XI"
-                    type="button"
-                  >
-                    &times;
-                  </button>
-                </div>
-              </div>
+                player={player}
+                assets={assets}
+                inXI={true}
+                isCaptain={captainId === player.id}
+                onToggle={() => onToggleXI(player.id)}
+                onCaptain={() => onSetCaptain(player.id)}
+              />
             ))}
-          </div>
-        ) : (
-          <p className="empty-message">Select players from your roster below to build your Starting XI.</p>
+          </>
+        )}
+
+        {bench.length > 0 && (
+          <>
+            <div className="roster-section-label">Bench</div>
+            {bench.map((player) => (
+              <PlayerRow
+                key={player.id}
+                player={player}
+                assets={assets}
+                inXI={false}
+                isCaptain={captainId === player.id}
+                onToggle={() => onToggleXI(player.id)}
+                onCaptain={() => onSetCaptain(player.id)}
+              />
+            ))}
+          </>
         )}
       </div>
+    </section>
+  );
+}
 
-      <div className="panel team-panel">
-        <div className="panel-header">
-          <div>
-            <h2>Full Roster</h2>
-            <p>{players.length} / 15 players</p>
-          </div>
-        </div>
-
-        <div className="roster">
-          {players.length === 0 ? (
-            <p className="empty-message">Draft players first to build your roster.</p>
-          ) : (
-            [...players]
-              .sort((a, b) => posOrder[a.position] - posOrder[b.position])
-              .map((player) => {
-                const inXI = startingSet.has(player.id);
-                return (
-                  <div
-                    className={`slot roster-slot ${inXI ? "in-xi" : ""}`}
-                    key={player.id}
-                  >
-                    <div className="slot-left">
-                      <span>{player.position}</span>
-                      <strong>
-                        <Flag player={player} assets={assets} /> {playerName(player)}
-                        {captainId === player.id && <span className="captain-badge">C</span>}
-                      </strong>
-                    </div>
-                    <div className="slot-actions">
-                      <span className="player-price">${player.price}m</span>
-                      <button
-                        className={inXI ? "btn-bench" : "btn-start"}
-                        onClick={() => onToggleXI(player.id)}
-                        type="button"
-                      >
-                        {inXI ? "Bench" : "Start"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-          )}
+function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
+  return (
+    <div className={`player-card ${inXI ? "in-xi" : ""} ${isCaptain ? "is-captain" : ""}`}>
+      <div className="player-card-info">
+        <span className="player-card-pos">{player.position}</span>
+        <div className="player-card-name">
+          <strong>
+            <Flag player={player} assets={assets} /> {playerName(player)}
+          </strong>
+          <span className="player-card-meta">
+            {player.teamAbbr || "TBD"} &middot; ${player.price}m
+          </span>
         </div>
       </div>
-    </section>
+      <div className="player-card-actions">
+        {inXI && (
+          <button
+            className={`btn-captain ${isCaptain ? "active" : ""}`}
+            onClick={onCaptain}
+            title="Set as captain"
+            type="button"
+          >
+            C
+          </button>
+        )}
+        <button
+          className={inXI ? "btn-bench" : "btn-start"}
+          onClick={onToggle}
+          type="button"
+        >
+          {inXI ? "Bench" : "Start"}
+        </button>
+      </div>
+    </div>
   );
 }
 
