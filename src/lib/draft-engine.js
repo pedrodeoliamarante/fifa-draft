@@ -1,4 +1,4 @@
-import { seededManagers } from "./fantasy";
+import { seededManagers, formationSlots } from "./fantasy";
 
 const STORAGE_KEY = "fifaDraftState";
 const TOTAL_ROUNDS = 15;
@@ -239,6 +239,108 @@ export function createDraftEngine(allPlayers, squads) {
     return makePick(managerId, playerId);
   }
 
+  // --- Lineup & Captain ---
+
+  function getLineup(managerId) {
+    const state = loadState();
+    const key = `lineup_${managerId}`;
+    return state[key] || { startingXI: [], captainId: null, formation: "4-3-3" };
+  }
+
+  function setLineup(managerId, formation, startingXI, captainId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    const rosterIds = new Set(roster.map((p) => p.id));
+
+    // Validate all starting XI players are on the roster
+    for (const pid of startingXI) {
+      if (!rosterIds.has(pid)) throw new Error("Player is not on your roster");
+    }
+    if (startingXI.length !== 11) throw new Error("Starting XI must have exactly 11 players");
+
+    // Validate formation fits
+    const slots = formationSlots[formation];
+    if (!slots) throw new Error("Invalid formation");
+
+    const xiPlayers = startingXI.map((pid) => roster.find((p) => p.id === pid));
+    const needed = {};
+    for (const s of slots) needed[s] = (needed[s] || 0) + 1;
+    const have = {};
+    for (const p of xiPlayers) have[p.position] = (have[p.position] || 0) + 1;
+
+    for (const pos of Object.keys(needed)) {
+      if ((have[pos] || 0) !== needed[pos]) {
+        throw new Error(`Formation ${formation} requires ${needed[pos]} ${pos} but you have ${have[pos] || 0}`);
+      }
+    }
+
+    // Validate captain is in starting XI
+    if (captainId && !startingXI.includes(captainId)) {
+      throw new Error("Captain must be in your starting XI");
+    }
+
+    const key = `lineup_${managerId}`;
+    state[key] = { startingXI, captainId, formation };
+    saveState(state);
+    return state[key];
+  }
+
+  function setCaptain(managerId, captainId) {
+    const state = loadState();
+    const key = `lineup_${managerId}`;
+    const lineup = state[key] || { startingXI: [], captainId: null, formation: "4-3-3" };
+
+    if (lineup.startingXI.length > 0 && !lineup.startingXI.includes(captainId)) {
+      throw new Error("Captain must be in your starting XI");
+    }
+
+    lineup.captainId = captainId;
+    state[key] = lineup;
+    saveState(state);
+    return lineup;
+  }
+
+  function toggleStartingXI(managerId, playerId, formation) {
+    const state = loadState();
+    const key = `lineup_${managerId}`;
+    const lineup = state[key] || { startingXI: [], captainId: null, formation };
+    const roster = getManagerRoster(state, managerId);
+    const player = roster.find((p) => p.id === playerId);
+    if (!player) throw new Error("Player is not on your roster");
+
+    const idx = lineup.startingXI.indexOf(playerId);
+    if (idx >= 0) {
+      // Remove from XI
+      lineup.startingXI.splice(idx, 1);
+      if (lineup.captainId === playerId) lineup.captainId = null;
+    } else {
+      // Add to XI — check formation constraints
+      if (lineup.startingXI.length >= 11) throw new Error("Starting XI is full (11 players)");
+
+        const slots = formationSlots[formation];
+      if (!slots) throw new Error("Invalid formation");
+
+      const xiPlayers = lineup.startingXI.map((pid) => roster.find((p) => p.id === pid)).filter(Boolean);
+      const needed = {};
+      for (const s of slots) needed[s] = (needed[s] || 0) + 1;
+      const have = {};
+      for (const p of xiPlayers) have[p.position] = (have[p.position] || 0) + 1;
+
+      const currentCount = have[player.position] || 0;
+      const maxCount = needed[player.position] || 0;
+      if (currentCount >= maxCount) {
+        throw new Error(`Cannot add more ${player.position} players in ${formation}`);
+      }
+
+      lineup.startingXI.push(playerId);
+    }
+
+    lineup.formation = formation;
+    state[key] = lineup;
+    saveState(state);
+    return lineup;
+  }
+
   function resetDraft() {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -257,6 +359,10 @@ export function createDraftEngine(allPlayers, squads) {
     doAutoPick,
     resetDraft,
     getTimerStart,
+    getLineup,
+    setLineup,
+    setCaptain,
+    toggleStartingXI,
     managers,
   };
 }
