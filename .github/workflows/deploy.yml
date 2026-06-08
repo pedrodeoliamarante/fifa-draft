@@ -28,7 +28,8 @@ jobs:
       - run: npm run build
         env:
           GITHUB_PAGES: "true"
-          VITE_API_URL: ${{ vars.FIFA_DRAFT_API_URL }}
+          VITE_MODE: "prod"
+          VITE_API_URL: "https://pedro-thinkpad-t14s-gen-1.tail4d61c3.ts.net"
 
       - uses: actions/upload-pages-artifact@v3
         with:
