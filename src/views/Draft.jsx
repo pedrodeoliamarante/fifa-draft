@@ -25,7 +25,7 @@ function Draft({
               <p>Draft complete</p>
             ) : (
               <p>
-                Pick {draft?.currentPick?.pickNumber} · Round {draft?.currentPick?.roundNumber}
+                Pick {draft?.currentPick?.pickNumber} / Round {draft?.currentPick?.roundNumber}
               </p>
             )}
           </div>
@@ -92,7 +92,7 @@ function Draft({
                 <div className="player-main">
                   <strong>{playerName(player)}</strong>
                   <span>
-                    {player.position} · {player.teamAbbr || "TBD"}
+                    {player.position} / {player.teamAbbr || "TBD"}
                   </span>
                 </div>
                 <div className="player-meta draft-player-meta">

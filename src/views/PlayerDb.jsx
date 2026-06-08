@@ -35,7 +35,7 @@ function PlayerDb({ players, search, position, sortBy, onSearchChange, onPositio
             <div className="player-main">
               <strong>{playerName(player)}</strong>
               <span>
-                {player.position} · {player.teamAbbr || "TBD"}
+                {player.position} / {player.teamAbbr || "TBD"}
               </span>
             </div>
             <div className="player-meta">

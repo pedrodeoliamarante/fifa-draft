@@ -3,3 +3,4 @@ dist/
 *.log
 data/draft.db
 .claude/
+.tmp-chrome*/
