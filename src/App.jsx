@@ -110,7 +110,7 @@ function App() {
     if (timerRef.current) clearInterval(timerRef.current);
 
     const draft = data.draft;
-    if (!draft || draft.isComplete) {
+    if (!draft || draft.isComplete || draft.draftStatus !== "active") {
       setTimeLeft(null);
       return;
     }

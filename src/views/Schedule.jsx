@@ -42,7 +42,7 @@ function Schedule({ api, session, assets, rounds, currentMatchday, managers, onR
         <div className="panel-header">
           <div>
             <h2>Match Schedule</h2>
-            <p>Select a matchday to view fixtures</p>
+            <p>Select a round to view fixtures</p>
           </div>
           <button className="btn-refresh" onClick={handleRefresh} disabled={refreshing} type="button">
             {refreshing ? "Refreshing..." : "Refresh Live Data"}
@@ -76,7 +76,7 @@ function Schedule({ api, session, assets, rounds, currentMatchday, managers, onR
             {locked ? (
               <>
                 <strong>XI Locked</strong>
-                <span>Matchday {roundData.id} lineups are locked in</span>
+                <span>Round {roundData.id} lineups are locked in</span>
               </>
             ) : lockTimeLeft > 0 ? (
               <>
@@ -88,7 +88,7 @@ function Schedule({ api, session, assets, rounds, currentMatchday, managers, onR
               </>
             ) : (
               <>
-                <strong>Matchday {roundData.id}</strong>
+                <strong>Round {roundData.id}</strong>
                 <span>Schedule TBD</span>
               </>
             )}
@@ -127,7 +127,7 @@ function Schedule({ api, session, assets, rounds, currentMatchday, managers, onR
           <div className="panel-header">
             <div>
               <h2>Lineup Status</h2>
-              <p>Matchday {roundData.id}</p>
+              <p>Round {roundData.id}</p>
             </div>
           </div>
           <div className="lineup-status-list">

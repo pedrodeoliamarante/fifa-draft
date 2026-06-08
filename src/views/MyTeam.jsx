@@ -63,7 +63,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
           {isLocked ? (
             <>
               <strong>XI Locked</strong>
-              <span>Matchday {currentMatchday.id} lineups are locked</span>
+              <span>Round {currentMatchday.id} lineups are locked</span>
             </>
           ) : lockTimeLeft != null && lockTimeLeft > 0 ? (
             <>

@@ -13,14 +13,14 @@ function FreeAgents({ session, pool, myRoster, assets, isOpen, matchday, onClaim
           <div className="panel-header">
             <div>
               <h2>Free Agent Pool</h2>
-              <p>Opens after matchday 1 is complete</p>
+              <p>Opens after the first round of games is complete</p>
             </div>
           </div>
           <div className="fa-locked">
-            <p>The free agent pool is not yet available. It opens after the first matchday results are in.</p>
+            <p>The free agent pool is not yet available. It opens after the first round of games.</p>
             {onCompleteMatchday && (
               <button className="btn-small btn-start" onClick={() => onCompleteMatchday(matchday.current)} type="button">
-                Simulate: Complete Matchday {matchday.current}
+                Simulate: Complete Round {matchday.current}
               </button>
             )}
           </div>
