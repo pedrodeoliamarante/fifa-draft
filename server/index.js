@@ -95,7 +95,9 @@ function setupSchema() {
     CREATE TABLE IF NOT EXISTS leagues (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      status TEXT NOT NULL
+      status TEXT NOT NULL,
+      trades_open INTEGER NOT NULL DEFAULT 0,
+      free_agency_open INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS league_managers (
@@ -927,6 +929,9 @@ app.get("/api/trades", requireAuth, (req, res) => {
 });
 
 app.post("/api/trades", requireAuth, (req, res) => {
+  const league = db.prepare("SELECT trades_open FROM leagues WHERE id = 1").get();
+  if (!league.trades_open) return res.status(403).json({ error: "Trades are not open yet" });
+
   const { toManagerId, offeringPlayerIds, requestingPlayerIds } = req.body || {};
   if (!toManagerId || !Array.isArray(offeringPlayerIds) || !Array.isArray(requestingPlayerIds)) {
     return res.status(400).json({ error: "Invalid trade proposal" });
@@ -1036,6 +1041,9 @@ app.get("/api/free-agents/pool", requireAuth, (req, res) => {
 });
 
 app.post("/api/free-agents/claim", requireAuth, (req, res) => {
+  const league = db.prepare("SELECT free_agency_open FROM leagues WHERE id = 1").get();
+  if (!league.free_agency_open) return res.status(403).json({ error: "Free agency is not open yet" });
+
   const { playerId } = req.body || {};
   const teamId = getTeamId(req.manager.id);
   const roster = getRosterPlayers(teamId);
@@ -1121,6 +1129,28 @@ app.get("/api/rounds/:roundId/points/:managerId", requireAuth, (req, res) => {
 // ---------------------------------------------------------------------------
 // Admin / debug endpoints
 // ---------------------------------------------------------------------------
+
+// Toggle trades open/closed — admin only
+app.post("/api/admin/trades/toggle", requireAuth, requireAdmin, (req, res) => {
+  const league = db.prepare("SELECT trades_open FROM leagues WHERE id = 1").get();
+  const newVal = league.trades_open ? 0 : 1;
+  db.prepare("UPDATE leagues SET trades_open = ? WHERE id = 1").run(newVal);
+  res.json({ ok: true, tradesOpen: !!newVal });
+});
+
+// Toggle free agency open/closed — admin only
+app.post("/api/admin/free-agency/toggle", requireAuth, requireAdmin, (req, res) => {
+  const league = db.prepare("SELECT free_agency_open FROM leagues WHERE id = 1").get();
+  const newVal = league.free_agency_open ? 0 : 1;
+  db.prepare("UPDATE leagues SET free_agency_open = ? WHERE id = 1").run(newVal);
+  res.json({ ok: true, freeAgencyOpen: !!newVal });
+});
+
+// Get league settings (available to all)
+app.get("/api/league/settings", requireAuth, (req, res) => {
+  const league = db.prepare("SELECT trades_open AS tradesOpen, free_agency_open AS freeAgencyOpen FROM leagues WHERE id = 1").get();
+  res.json({ tradesOpen: !!league.tradesOpen, freeAgencyOpen: !!league.freeAgencyOpen });
+});
 
 // Start the draft — admin only
 app.post("/api/admin/draft/start", requireAuth, requireAdmin, (req, res) => {

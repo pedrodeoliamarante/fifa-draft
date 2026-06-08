@@ -53,6 +53,7 @@ function App() {
   const [rosters, setRosters] = useState({});
   const [faStatus, setFaStatus] = useState({ isOpen: false, currentMatchday: 1, completedMatchdays: [] });
   const [faPool, setFaPool] = useState([]);
+  const [leagueSettings, setLeagueSettings] = useState({ tradesOpen: false, freeAgencyOpen: false });
   const timerRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -62,7 +63,7 @@ function App() {
 
   async function refreshData(token = session?.token) {
     try {
-      const [me, playerDb, standings, draft, lineupData, roundsData, currentMd] = await Promise.all([
+      const [me, playerDb, standings, draft, lineupData, roundsData, currentMd, settings] = await Promise.all([
         api("/api/me", {}, token),
         api("/api/players", {}, token),
         api("/api/standings", {}, token),
@@ -70,6 +71,7 @@ function App() {
         api("/api/lineup", {}, token),
         api("/api/rounds", {}, token),
         api("/api/rounds/current", {}, token),
+        api("/api/league/settings", {}, token),
       ]);
 
       setSession((current) => ({ ...current, token, manager: me.manager, league: me.league }));
@@ -78,6 +80,7 @@ function App() {
       setRounds(roundsData.rounds || []);
       setCurrentMatchday(currentMd?.id ? currentMd : null);
       setManagers(draft.managers || []);
+      setLeagueSettings(settings);
       setLoadState("ready");
     } catch (error) {
       localStorage.removeItem("draftToken");
@@ -425,58 +428,110 @@ function App() {
       )}
 
       {activeView === "trades" && (
-        <Trades
-          session={session}
-          trades={trades}
-          managers={managers}
-          rosters={rosters}
-          onPropose={async (toId, offering, requesting) => {
-            await api("/api/trades", { method: "POST", body: JSON.stringify({ toManagerId: toId, offeringPlayerIds: offering, requestingPlayerIds: requesting }) });
-            await loadTrades();
-          }}
-          onAccept={async (tradeId) => {
-            await api(`/api/trades/${tradeId}/accept`, { method: "POST" });
-            await loadTrades();
-            await refreshData(session.token);
-          }}
-          onReject={async (tradeId) => {
-            await api(`/api/trades/${tradeId}/reject`, { method: "POST" });
-            await loadTrades();
-          }}
-          onCancel={async (tradeId) => {
-            await api(`/api/trades/${tradeId}/cancel`, { method: "POST" });
-            await loadTrades();
-          }}
-        />
+        <>
+          {!leagueSettings.tradesOpen && (
+            <section className="panel">
+              <div className="panel-header"><div><h2>Trades</h2><p>Trades are currently locked</p></div>
+                {session?.manager?.isAdmin && (
+                  <button className="btn-small btn-start" onClick={async () => {
+                    const r = await api("/api/admin/trades/toggle", { method: "POST" });
+                    setLeagueSettings((s) => ({ ...s, tradesOpen: r.tradesOpen }));
+                  }} type="button">Open Trades</button>
+                )}
+              </div>
+            </section>
+          )}
+          {leagueSettings.tradesOpen && (
+            <>
+              {session?.manager?.isAdmin && (
+                <div style={{ marginBottom: 12 }}>
+                  <button className="btn-small btn-danger" onClick={async () => {
+                    const r = await api("/api/admin/trades/toggle", { method: "POST" });
+                    setLeagueSettings((s) => ({ ...s, tradesOpen: r.tradesOpen }));
+                  }} type="button">Close Trades</button>
+                </div>
+              )}
+              <Trades
+                session={session}
+                trades={trades}
+                managers={managers}
+                rosters={rosters}
+                onPropose={async (toId, offering, requesting) => {
+                  await api("/api/trades", { method: "POST", body: JSON.stringify({ toManagerId: toId, offeringPlayerIds: offering, requestingPlayerIds: requesting }) });
+                  await loadTrades();
+                }}
+                onAccept={async (tradeId) => {
+                  await api(`/api/trades/${tradeId}/accept`, { method: "POST" });
+                  await loadTrades();
+                  await refreshData(session.token);
+                }}
+                onReject={async (tradeId) => {
+                  await api(`/api/trades/${tradeId}/reject`, { method: "POST" });
+                  await loadTrades();
+                }}
+                onCancel={async (tradeId) => {
+                  await api(`/api/trades/${tradeId}/cancel`, { method: "POST" });
+                  await loadTrades();
+                }}
+              />
+            </>
+          )}
+        </>
       )}
 
       {activeView === "free-agents" && (
-        <FreeAgents
-          session={session}
-          pool={faPool}
-          myRoster={data.team?.players || []}
-          assets={assets}
-          isOpen={faStatus.isOpen}
-          matchday={faStatus}
-          onClaim={async (playerId) => {
-            await api("/api/free-agents/claim", { method: "POST", body: JSON.stringify({ playerId }) });
-            await loadFreeAgents();
-            await refreshData(session.token);
-          }}
-          onRelease={async (playerId) => {
-            await api("/api/free-agents/release", { method: "POST", body: JSON.stringify({ playerId }) });
-            await loadFreeAgents();
-            await refreshData(session.token);
-          }}
-          onRefresh={session?.manager?.isAdmin ? async () => {
-            await api("/api/admin/refresh-fa-pool", { method: "POST" });
-            await loadFreeAgents();
-          } : null}
-          onCompleteMatchday={session?.manager?.isAdmin ? async (md) => {
-            await api("/api/admin/complete-matchday", { method: "POST", body: JSON.stringify({ matchday: md }) });
-            await loadFreeAgents();
-          } : null}
-        />
+        <>
+          {!leagueSettings.freeAgencyOpen && (
+            <section className="panel">
+              <div className="panel-header"><div><h2>Free Agents</h2><p>Free agency is currently locked</p></div>
+                {session?.manager?.isAdmin && (
+                  <button className="btn-small btn-start" onClick={async () => {
+                    const r = await api("/api/admin/free-agency/toggle", { method: "POST" });
+                    setLeagueSettings((s) => ({ ...s, freeAgencyOpen: r.freeAgencyOpen }));
+                  }} type="button">Open Free Agency</button>
+                )}
+              </div>
+            </section>
+          )}
+          {leagueSettings.freeAgencyOpen && (
+            <>
+              {session?.manager?.isAdmin && (
+                <div style={{ marginBottom: 12 }}>
+                  <button className="btn-small btn-danger" onClick={async () => {
+                    const r = await api("/api/admin/free-agency/toggle", { method: "POST" });
+                    setLeagueSettings((s) => ({ ...s, freeAgencyOpen: r.freeAgencyOpen }));
+                  }} type="button">Close Free Agency</button>
+                </div>
+              )}
+              <FreeAgents
+                session={session}
+                pool={faPool}
+                myRoster={data.team?.players || []}
+                assets={assets}
+                isOpen={true}
+                matchday={faStatus}
+                onClaim={async (playerId) => {
+                  await api("/api/free-agents/claim", { method: "POST", body: JSON.stringify({ playerId }) });
+                  await loadFreeAgents();
+                  await refreshData(session.token);
+                }}
+                onRelease={async (playerId) => {
+                  await api("/api/free-agents/release", { method: "POST", body: JSON.stringify({ playerId }) });
+                  await loadFreeAgents();
+                  await refreshData(session.token);
+                }}
+                onRefresh={session?.manager?.isAdmin ? async () => {
+                  await api("/api/admin/refresh-fa-pool", { method: "POST" });
+                  await loadFreeAgents();
+                } : null}
+                onCompleteMatchday={session?.manager?.isAdmin ? async (md) => {
+                  await api("/api/admin/complete-matchday", { method: "POST", body: JSON.stringify({ matchday: md }) });
+                  await loadFreeAgents();
+                } : null}
+              />
+            </>
+          )}
+        </>
       )}
 
       {activeView === "rules" && <Rules />}
