@@ -18,9 +18,11 @@ function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRele
           </div>
           <div className="fa-locked">
             <p>The free agent pool is not yet available. It opens after the first matchday results are in.</p>
-            <button className="btn-small btn-start" onClick={() => onCompleteMatchday(matchday.current)} type="button">
-              Simulate: Complete Matchday {matchday.current}
-            </button>
+            {onCompleteMatchday && (
+              <button className="btn-small btn-start" onClick={() => onCompleteMatchday(matchday.current)} type="button">
+                Simulate: Complete Matchday {matchday.current}
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -53,11 +55,13 @@ function FreeAgents({ session, pool, myRoster, isOpen, matchday, onClaim, onRele
             <h2>Free Agent Pool</h2>
             <p>{pool.length} players available</p>
           </div>
-          <div className="slot-actions">
-            <button className="btn-small btn-start" onClick={onRefresh} type="button">
-              Refresh Pool
-            </button>
-          </div>
+          {onRefresh && (
+            <div className="slot-actions">
+              <button className="btn-small btn-start" onClick={onRefresh} type="button">
+                Refresh Pool
+              </button>
+            </div>
+          )}
         </div>
 
         {error && <p className="fa-error">{error}</p>}
