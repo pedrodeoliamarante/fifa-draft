@@ -649,6 +649,7 @@ setInterval(() => {
 const app = express();
 
 app.use((req, res, next) => {
+  console.log("CORS MW:", req.method, req.path);
   const origin = req.get("origin");
   if (origin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
