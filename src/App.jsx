@@ -9,6 +9,7 @@ import MyTeam from "./views/MyTeam";
 import PlayerDb from "./views/PlayerDb";
 import Rules from "./views/Rules";
 import Trades from "./views/Trades";
+import FreeAgents from "./views/FreeAgents";
 
 import Schedule from "./views/Schedule";
 
@@ -22,6 +23,7 @@ const menuItems = [
   { id: "schedule", label: "Schedule" },
   { id: "draft", label: "Draft" },
   { id: "trades", label: "Trades" },
+  { id: "free-agents", label: "Free Agents" },
   { id: "player-db", label: "Player DB" },
   { id: "rules", label: "Rules" },
 ];
@@ -321,6 +323,10 @@ function App() {
             onFormationChange={setFormation}
             onToggleXI={handleToggleXI}
             onSetCaptain={handleSetCaptain}
+            onRelease={(playerId) => {
+              engine.releasePlayer(session.manager.id, playerId);
+              refreshData(session.token);
+            }}
           />
         </>
       )}
@@ -408,6 +414,32 @@ function App() {
           }}
           onCancel={(tradeId) => {
             engine.cancelTrade(tradeId, session.manager.id);
+            refreshData(session.token);
+          }}
+        />
+      )}
+
+      {activeView === "free-agents" && (
+        <FreeAgents
+          session={session}
+          pool={engine.isFreeAgencyOpen() ? engine.getFreeAgentPool() : []}
+          myRoster={engine.getMe(session.manager.id).team.players}
+          isOpen={engine.isFreeAgencyOpen()}
+          matchday={engine.getFreeAgencyMatchday()}
+          onClaim={(playerId) => {
+            engine.claimFreeAgent(session.manager.id, playerId);
+            refreshData(session.token);
+          }}
+          onRelease={(playerId) => {
+            engine.releasePlayer(session.manager.id, playerId);
+            refreshData(session.token);
+          }}
+          onRefresh={() => {
+            engine.refreshFreeAgentPool();
+            refreshData(session.token);
+          }}
+          onCompleteMatchday={(md) => {
+            engine.completeMatchdayForFA(md);
             refreshData(session.token);
           }}
         />

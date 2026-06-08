@@ -480,7 +480,6 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
 
   function getCurrentMatchday() {
     const now = Date.now();
-    // Find the round whose first kickoff is soonest in the future, or the most recent active one
     let upcoming = null;
     let active = null;
 
@@ -491,12 +490,10 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
       const lastKickoff = new Date(fixtures[fixtures.length - 1].date).getTime();
 
       if (now < firstKickoff) {
-        // Future round — pick the nearest one
         if (!upcoming || firstKickoff < new Date(upcoming.fixtures[0].date).getTime()) {
           upcoming = { ...round, fixtures, firstKickoff };
         }
       } else if (now <= lastKickoff + 3 * 60 * 60 * 1000) {
-        // Active round (within ~3h of last fixture start)
         active = { ...round, fixtures, firstKickoff };
       }
     }
@@ -522,7 +519,7 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
   function lockLineup(managerId, roundId) {
     const state = loadState();
     const key = `lockedLineup_${managerId}_r${roundId}`;
-    if (state[key]) return state[key]; // Already locked
+    if (state[key]) return state[key];
 
     const lineupKey = `lineup_${managerId}`;
     const currentLineup = state[lineupKey] || { startingXI: [], captainId: null, formation: "4-3-3" };
@@ -601,6 +598,150 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
     return results;
   }
 
+  // --- Free Agent Pool ---
+
+  function isFreeAgencyOpen() {
+    // Free agency opens after the first matchday has passed
+    const state = loadState();
+    if (state.matchday && state.matchday.completedMatchdays && state.matchday.completedMatchdays.length > 0) {
+      return true;
+    }
+    // Also open if any round's first kickoff has passed
+    for (const round of matchdayRounds) {
+      const fixtures = (round.tournaments || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (fixtures.length > 0 && Date.now() >= new Date(fixtures[0].date).getTime()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function getFreeAgencyMatchday() {
+    const state = loadState();
+    return state.matchday || { current: 1, completedMatchdays: [] };
+  }
+
+  function completeMatchdayForFA(matchdayNumber) {
+    const state = loadState();
+    if (!state.matchday) state.matchday = { current: 1, completedMatchdays: [] };
+    if (!state.matchday.completedMatchdays.includes(matchdayNumber)) {
+      state.matchday.completedMatchdays.push(matchdayNumber);
+    }
+    state.matchday.current = matchdayNumber + 1;
+    state.freeAgentSeed = Date.now();
+    saveState(state);
+    return state.matchday;
+  }
+
+  function seededRandom(seed) {
+    let s = seed;
+    return function () {
+      s = (s * 1664525 + 1013904223) & 0xffffffff;
+      return (s >>> 0) / 0xffffffff;
+    };
+  }
+
+  function generateFreeAgentPool() {
+    const state = loadState();
+    const available = getAvailablePlayers(state);
+    if (available.length === 0) return [];
+
+    const poolSize = Math.min(managers.length * 3, available.length);
+    const sorted = [...available].sort((a, b) => b.price - a.price);
+    const total = sorted.length;
+
+    const topEnd = Math.floor(total * 0.3);
+    const midEnd = Math.floor(total * 0.7);
+
+    const topTier = sorted.slice(0, topEnd);
+    const midTier = sorted.slice(topEnd, midEnd);
+    const lowTier = sorted.slice(midEnd);
+
+    const topCount = Math.round(poolSize * 0.7);
+    const midCount = Math.round(poolSize * 0.2);
+    const lowCount = poolSize - topCount - midCount;
+
+    const poolSeed = state.freeAgentSeed || Date.now();
+    if (!state.freeAgentSeed) {
+      state.freeAgentSeed = poolSeed;
+      saveState(state);
+    }
+    const rng = seededRandom(poolSeed);
+
+    function sample(arr, n) {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, Math.min(n, shuffled.length));
+    }
+
+    return [
+      ...sample(topTier, topCount),
+      ...sample(midTier, midCount),
+      ...sample(lowTier, lowCount),
+    ].sort((a, b) => b.price - a.price);
+  }
+
+  function getFreeAgentPool() {
+    return generateFreeAgentPool();
+  }
+
+  function claimFreeAgent(managerId, playerId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    if (roster.length >= MAX_ROSTER) throw new Error("Roster is full — release a player first");
+
+    const pool = generateFreeAgentPool();
+    const player = pool.find((p) => p.id === playerId);
+    if (!player) throw new Error("Player is not in the free agent pool");
+
+    if (!canAddPosition(roster, player.position)) {
+      throw new Error(`Cannot add another ${player.position} to your roster`);
+    }
+
+    state.picks.push({
+      pickNumber: state.picks.length + 1,
+      roundNumber: 0,
+      managerId,
+      playerId,
+      playerName: player.name,
+      position: player.position,
+      teamAbbr: player.teamAbbr,
+      acquiredVia: "free-agency",
+    });
+    saveState(state);
+    return { team: getManagerRoster(state, managerId) };
+  }
+
+  function releasePlayer(managerId, playerId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    const player = roster.find((p) => p.id === playerId);
+    if (!player) throw new Error("Player is not on your roster");
+
+    const idx = state.picks.findIndex((p) => p.playerId === playerId && p.managerId === managerId);
+    if (idx === -1) throw new Error("Could not find pick to release");
+    state.picks.splice(idx, 1);
+
+    const lineupKey = `lineup_${managerId}`;
+    if (state[lineupKey]) {
+      state[lineupKey].startingXI = state[lineupKey].startingXI.filter((id) => id !== playerId);
+      if (state[lineupKey].captainId === playerId) state[lineupKey].captainId = null;
+    }
+
+    saveState(state);
+    return { team: getManagerRoster(state, managerId) };
+  }
+
+  function refreshFreeAgentPool() {
+    const state = loadState();
+    state.freeAgentSeed = Date.now();
+    saveState(state);
+    return generateFreeAgentPool();
+  }
+
   function resetDraft() {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -644,6 +785,13 @@ export function createDraftEngine(allPlayers, squads, rounds = []) {
     getRoundPoints,
     refreshLiveData,
     getMyDraftedSquads,
+    getFreeAgentPool,
+    claimFreeAgent,
+    releasePlayer,
+    refreshFreeAgentPool,
+    getFreeAgencyMatchday,
+    completeMatchdayForFA,
+    isFreeAgencyOpen,
     managers,
   };
 }

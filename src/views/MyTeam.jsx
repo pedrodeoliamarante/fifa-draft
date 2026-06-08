@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { formationSlots, playerName } from "../lib/fantasy";
 
-function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lockTimeLeft: initialLockTimeLeft, onFormationChange, onToggleXI, onSetCaptain }) {
+function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lockTimeLeft: initialLockTimeLeft, onFormationChange, onToggleXI, onSetCaptain, onRelease }) {
   const [lockTimeLeft, setLockTimeLeft] = useState(initialLockTimeLeft);
   const timerRef = useRef(null);
 
@@ -106,6 +106,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
                 disabled={isLocked}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
+                onRelease={() => onRelease(player.id)}
               />
             ))}
           </>
@@ -124,6 +125,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
                 disabled={isLocked}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
+                onRelease={() => onRelease(player.id)}
               />
             ))}
           </>
@@ -133,7 +135,7 @@ function MyTeam({ team, formation, assets, lineup, currentMatchday, isLocked, lo
   );
 }
 
-function PlayerRow({ player, assets, inXI, isCaptain, disabled, onToggle, onCaptain }) {
+function PlayerRow({ player, assets, inXI, isCaptain, disabled, onToggle, onCaptain, onRelease }) {
   return (
     <div className={`player-card ${inXI ? "in-xi" : ""} ${isCaptain ? "is-captain" : ""}`}>
       <div className="player-card-info">
@@ -166,6 +168,14 @@ function PlayerRow({ player, assets, inXI, isCaptain, disabled, onToggle, onCapt
           type="button"
         >
           {inXI ? "Bench" : "Start"}
+        </button>
+        <button
+          className="btn-release"
+          onClick={onRelease}
+          title="Release player"
+          type="button"
+        >
+          Drop
         </button>
       </div>
     </div>
