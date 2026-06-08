@@ -35,13 +35,14 @@ export const formationSlots = {
 };
 
 export const seededManagers = [
-  { loginName: "pedro", label: "Pedro", logo: "/assets/pedro.png" },
+  { loginName: "pedro", label: "Brasil Penta", logo: "/assets/pedro.png" },
   { loginName: "tesla_team", label: "Tesla Team", logo: "/assets/tesla.png" },
   { loginName: "monarcas", label: "Monarcas", logo: "/assets/monarcas.png" },
   { loginName: "aidan", label: "Aidan", logo: "/assets/aidan.png" },
-  { loginName: "sam", label: "Sam", logo: "/assets/sam.png" },
-  { loginName: "evelyn", label: "Evelyn", logo: "/assets/evelyn.png" },
+  { loginName: "sam", label: "Sam Bruh Scores", logo: "/assets/sam.png" },
+  { loginName: "evelyn", label: "Evelyn Stars ⭐", logo: "/assets/evelyn.png" },
   { loginName: "hang_he_chan_love", label: "Hang He Chan Love", logo: "/assets/kellen.png" },
+  { loginName: "croat_goats", label: "Croat Goats", logo: "/assets/croats.png" },
 ];
 
 export function playerName(player) {

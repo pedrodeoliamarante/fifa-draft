@@ -362,11 +362,14 @@ button:focus-visible {
 .team-logo {
   width: 22px;
   height: 22px;
-  object-fit: contain;
+  object-fit: cover;
   vertical-align: -5px;
   margin-right: 6px;
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px var(--ink);
+  filter:
+    drop-shadow(1px 0 0 var(--ink))
+    drop-shadow(-1px 0 0 var(--ink))
+    drop-shadow(0 1px 0 var(--ink))
+    drop-shadow(0 -1px 0 var(--ink));
 }
 
 .team-grid,
