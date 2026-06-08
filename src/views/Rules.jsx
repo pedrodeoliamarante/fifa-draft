@@ -9,7 +9,7 @@ const ruleSections = [
   {
     title: "Initial Draft",
     body:
-      "Before the tournament starts, managers draft their rosters using a snake draft. The draft order reverses every round: if the first round goes 1 through 12, the next round goes 12 through 1. Each manager drafts 15 players total, including 2 goalkeepers.",
+      "Before the tournament starts, managers draft their rosters using a snake draft. The draft order reverses every round: if the first round goes 1 through 12, the next round goes 12 through 1. Each manager drafts 15 players total, including 2 goalkeepers. Managers have 1 hour to make each pick. If the timer expires, the system auto-picks the highest-value available player at a position the manager still lacks.",
   },
   {
     title: "Weekly Lineups",
