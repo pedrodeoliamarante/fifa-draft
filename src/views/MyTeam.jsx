@@ -1,7 +1,7 @@
 import React from "react";
 import { formationSlots, playerName } from "../lib/fantasy";
 
-function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI, onSetCaptain }) {
+function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI, onSetCaptain, onRelease }) {
   const players = team?.players || [];
   const startingSet = new Set(lineup?.startingXI || []);
   const captainId = lineup?.captainId;
@@ -71,6 +71,7 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
                 isCaptain={captainId === player.id}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
+                onRelease={() => onRelease(player.id)}
               />
             ))}
           </>
@@ -88,6 +89,7 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
                 isCaptain={captainId === player.id}
                 onToggle={() => onToggleXI(player.id)}
                 onCaptain={() => onSetCaptain(player.id)}
+                onRelease={() => onRelease(player.id)}
               />
             ))}
           </>
@@ -97,7 +99,7 @@ function MyTeam({ team, formation, assets, lineup, onFormationChange, onToggleXI
   );
 }
 
-function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
+function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain, onRelease }) {
   return (
     <div className={`player-card ${inXI ? "in-xi" : ""} ${isCaptain ? "is-captain" : ""}`}>
       <div className="player-card-info">
@@ -128,6 +130,14 @@ function PlayerRow({ player, assets, inXI, isCaptain, onToggle, onCaptain }) {
           type="button"
         >
           {inXI ? "Bench" : "Start"}
+        </button>
+        <button
+          className="btn-release"
+          onClick={onRelease}
+          title="Release player"
+          type="button"
+        >
+          Drop
         </button>
       </div>
     </div>

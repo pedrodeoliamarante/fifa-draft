@@ -440,6 +440,155 @@ export function createDraftEngine(allPlayers, squads) {
     return trade;
   }
 
+  // --- Matchday tracking ---
+
+  function getMatchday() {
+    const state = loadState();
+    return state.matchday || { current: 1, completedMatchdays: [] };
+  }
+
+  function completeMatchday(matchdayNumber) {
+    const state = loadState();
+    if (!state.matchday) state.matchday = { current: 1, completedMatchdays: [] };
+    if (!state.matchday.completedMatchdays.includes(matchdayNumber)) {
+      state.matchday.completedMatchdays.push(matchdayNumber);
+    }
+    state.matchday.current = matchdayNumber + 1;
+    // Reset free agent seed so a new pool is generated each matchday
+    state.freeAgentSeed = Date.now();
+    saveState(state);
+    return state.matchday;
+  }
+
+  function isFreeAgencyOpen() {
+    const state = loadState();
+    const md = state.matchday || { current: 1, completedMatchdays: [] };
+    return md.completedMatchdays.length > 0;
+  }
+
+  // --- Free Agent Pool ---
+
+  // Seeded random for deterministic pool generation per refresh cycle
+  function seededRandom(seed) {
+    let s = seed;
+    return function () {
+      s = (s * 1664525 + 1013904223) & 0xffffffff;
+      return (s >>> 0) / 0xffffffff;
+    };
+  }
+
+  function generateFreeAgentPool() {
+    const state = loadState();
+    const available = getAvailablePlayers(state);
+    if (available.length === 0) return [];
+
+    // Pool size: 3 players per manager
+    const poolSize = Math.min(managers.length * 3, available.length);
+
+    // Sort by price to tier them
+    const sorted = [...available].sort((a, b) => b.price - a.price);
+    const total = sorted.length;
+
+    const topEnd = Math.floor(total * 0.3);
+    const midStart = topEnd;
+    const midEnd = Math.floor(total * 0.7);
+
+    const topTier = sorted.slice(0, topEnd);
+    const midTier = sorted.slice(midStart, midEnd);
+    const lowTier = sorted.slice(midEnd);
+
+    // Distribution: 70% top, 20% mid, 10% low
+    const topCount = Math.round(poolSize * 0.7);
+    const midCount = Math.round(poolSize * 0.2);
+    const lowCount = poolSize - topCount - midCount;
+
+    // Use a seed based on the current pool cycle (stored in state)
+    const poolSeed = state.freeAgentSeed || Date.now();
+    if (!state.freeAgentSeed) {
+      state.freeAgentSeed = poolSeed;
+      saveState(state);
+    }
+    const rng = seededRandom(poolSeed);
+
+    function sample(arr, n) {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, Math.min(n, shuffled.length));
+    }
+
+    const pool = [
+      ...sample(topTier, topCount),
+      ...sample(midTier, midCount),
+      ...sample(lowTier, lowCount),
+    ];
+
+    return pool.sort((a, b) => b.price - a.price);
+  }
+
+  function getFreeAgentPool() {
+    return generateFreeAgentPool();
+  }
+
+  function claimFreeAgent(managerId, playerId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    if (roster.length >= MAX_ROSTER) throw new Error("Roster is full — release a player first");
+
+    const pool = generateFreeAgentPool();
+    const player = pool.find((p) => p.id === playerId);
+    if (!player) throw new Error("Player is not in the free agent pool");
+
+    if (!canAddPosition(roster, player.position)) {
+      throw new Error(`Cannot add another ${player.position} to your roster`);
+    }
+
+    // Add as a pick (acquired via free agency)
+    state.picks.push({
+      pickNumber: state.picks.length + 1,
+      roundNumber: 0,
+      managerId,
+      playerId,
+      playerName: player.name,
+      position: player.position,
+      teamAbbr: player.teamAbbr,
+      acquiredVia: "free-agency",
+    });
+    saveState(state);
+    return { team: getManagerRoster(state, managerId) };
+  }
+
+  function releasePlayer(managerId, playerId) {
+    const state = loadState();
+    const roster = getManagerRoster(state, managerId);
+    const player = roster.find((p) => p.id === playerId);
+    if (!player) throw new Error("Player is not on your roster");
+
+    // Remove from picks
+    const idx = state.picks.findIndex((p) => p.playerId === playerId && p.managerId === managerId);
+    if (idx === -1) throw new Error("Could not find pick to release");
+    state.picks.splice(idx, 1);
+
+    // Remove from lineup if present
+    const lineupKey = `lineup_${managerId}`;
+    if (state[lineupKey]) {
+      state[lineupKey].startingXI = state[lineupKey].startingXI.filter((id) => id !== playerId);
+      if (state[lineupKey].captainId === playerId) state[lineupKey].captainId = null;
+    }
+
+    saveState(state);
+    return { team: getManagerRoster(state, managerId) };
+  }
+
+  function refreshFreeAgentPool() {
+    const state = loadState();
+    state.freeAgentSeed = Date.now();
+    saveState(state);
+    return generateFreeAgentPool();
+  }
+
   function resetDraft() {
     localStorage.removeItem(STORAGE_KEY);
   }
@@ -466,6 +615,13 @@ export function createDraftEngine(allPlayers, squads) {
     proposeTrade,
     respondToTrade,
     cancelTrade,
+    getFreeAgentPool,
+    claimFreeAgent,
+    releasePlayer,
+    refreshFreeAgentPool,
+    getMatchday,
+    completeMatchday,
+    isFreeAgencyOpen,
     managers,
   };
 }

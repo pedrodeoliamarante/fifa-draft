@@ -1023,6 +1023,95 @@ button:focus-visible {
 .trade-rejected .trade-status { color: var(--danger); }
 .trade-cancelled .trade-status { color: var(--muted); }
 
+/* --- Free Agents --- */
+
+.fa-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.fa-error {
+  padding: 10px 14px;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.fa-notice {
+  padding: 14px;
+  border-bottom: 1px solid var(--soft-line);
+  display: grid;
+  gap: 10px;
+}
+
+.fa-notice p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.fa-list {
+  display: grid;
+  gap: 0;
+}
+
+.fa-meta {
+  grid-template-columns: 72px minmax(70px, 1fr);
+}
+
+.fa-meta button {
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 950;
+  height: 34px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fa-meta button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-release {
+  border: 1px solid var(--danger);
+  border-radius: 0;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 950;
+  height: 34px;
+  padding: 0 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fa-locked {
+  padding: 24px 14px;
+  display: grid;
+  gap: 14px;
+  text-align: center;
+}
+
+.fa-locked p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fa-empty {
+  padding: 18px 14px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 @media (min-width: 720px) {
   .shell {
     width: min(100%, calc(100vw - 36px));
@@ -1115,6 +1204,10 @@ button:focus-visible {
 
   .draft-grid {
     grid-template-columns: 360px minmax(0, 1fr);
+  }
+
+  .fa-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .player-list {
