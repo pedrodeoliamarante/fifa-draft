@@ -18,14 +18,14 @@ import squadsJson from "../data/fifa-fantasy/squads.json";
 import roundsJson from "../data/fifa-fantasy/rounds.json";
 
 const menuItems = [
-  { id: "my-team", label: "My Team" },
-  { id: "league-standings", label: "League Standings" },
-  { id: "schedule", label: "Schedule" },
+  { id: "rules", label: "Rules" },
   { id: "draft", label: "Draft" },
+  { id: "my-team", label: "My Team" },
   { id: "trades", label: "Trades" },
   { id: "free-agents", label: "Free Agents" },
+  { id: "league-standings", label: "League Standings" },
+  { id: "schedule", label: "Schedule" },
   { id: "player-db", label: "Player DB" },
-  { id: "rules", label: "Rules" },
 ];
 
 // One-time engine initialization
