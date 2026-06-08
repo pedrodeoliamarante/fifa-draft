@@ -661,6 +661,12 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
+// Serve frontend static files (so everything runs on one origin — no CORS popups)
+const distDir = path.join(rootDir, "dist");
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+}
+
 // ---------------------------------------------------------------------------
 // Auth endpoints
 // ---------------------------------------------------------------------------
@@ -1176,14 +1182,8 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-// ---------------------------------------------------------------------------
-// Serve frontend static files (so everything runs on one origin)
-// ---------------------------------------------------------------------------
-
-const distDir = path.join(rootDir, "dist");
+// SPA fallback — serve index.html for non-API routes
 if (fs.existsSync(distDir)) {
-  app.use(express.static(distDir));
-  // SPA fallback — serve index.html for non-API routes
   app.get("/{*path}", (req, res, next) => {
     if (req.path.startsWith("/api/")) return next();
     res.sendFile(path.join(distDir, "index.html"));
