@@ -31,7 +31,9 @@ const menuItems = [
 // One-time engine initialization
 const engine = createDraftEngine(playersJson, squadsJson, roundsJson);
 setEngine(engine);
-if (typeof window !== "undefined") window.__engine = engine;
+
+const isDebug = import.meta.env.VITE_MODE !== "prod";
+if (isDebug && typeof window !== "undefined") window.__engine = engine;
 
 const PICK_TIMER_MS = 60 * 60 * 1000; // 1 hour
 
@@ -43,7 +45,7 @@ function App() {
   const [data, setData] = useState({ players: [], team: null, standings: [], draft: null });
   const [assets, setAssets] = useState({ flags: {}, players: {} });
   const [loadState, setLoadState] = useState(session ? "loading" : "login");
-  const [loginState, setLoginState] = useState({ loginName: "pedro", password: "demo", error: "" });
+  const [loginState, setLoginState] = useState({ loginName: isDebug ? "pedro" : "", password: "", error: "" });
   const [activeView, setActiveView] = useState("draft");
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState("ALL");
@@ -265,7 +267,7 @@ function App() {
         loginState={loginState}
         onLoginChange={updateLoginState}
         onSubmit={handleLogin}
-        onQuickLogin={(loginName) => loginWith(loginName)}
+        onQuickLogin={isDebug ? (loginName) => loginWith(loginName) : null}
       />
     );
   }
@@ -376,8 +378,8 @@ function App() {
           onPositionChange={setPosition}
           onSortChange={setSortBy}
           onPick={handleDraftPick}
-          onResetDraft={handleResetDraft}
-          onAutoDraft={handleAutoDraft}
+          onResetDraft={isDebug ? handleResetDraft : null}
+          onAutoDraft={isDebug ? handleAutoDraft : null}
         />
       )}
 
@@ -435,14 +437,14 @@ function App() {
             engine.releasePlayer(session.manager.id, playerId);
             refreshData(session.token);
           }}
-          onRefresh={() => {
+          onRefresh={isDebug ? () => {
             engine.refreshFreeAgentPool();
             refreshData(session.token);
-          }}
-          onCompleteMatchday={(md) => {
+          } : null}
+          onCompleteMatchday={isDebug ? (md) => {
             engine.completeMatchdayForFA(md);
             refreshData(session.token);
-          }}
+          } : null}
         />
       )}
 

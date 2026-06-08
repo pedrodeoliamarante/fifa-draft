@@ -26,13 +26,15 @@ function Login({ loginState, onLoginChange, onSubmit, onQuickLogin }) {
           {loginState.error && <p className="form-error">{loginState.error}</p>}
           <button type="submit">Log In</button>
         </form>
-        <div className="quick-logins">
-          {seededManagers.map((manager) => (
-            <button key={manager.loginName} onClick={() => onQuickLogin(manager.loginName)} type="button">
-              {manager.label}
-            </button>
-          ))}
-        </div>
+        {onQuickLogin && (
+          <div className="quick-logins">
+            {seededManagers.map((manager) => (
+              <button key={manager.loginName} onClick={() => onQuickLogin(manager.loginName)} type="button">
+                {manager.label}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
