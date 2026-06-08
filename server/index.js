@@ -700,7 +700,7 @@ app.post("/api/login", (req, res) => {
   if (!matchedConfig) return res.status(401).json({ error: "Unknown team name" });
 
   const manager = db.prepare(`
-    SELECT id, display_name AS displayName, login_name AS loginName, password_hash AS passwordHash, logo
+    SELECT id, display_name AS displayName, login_name AS loginName, password_hash AS passwordHash, logo, is_admin AS isAdmin
     FROM managers WHERE login_name = ?
   `).get(matchedConfig.loginName);
 
